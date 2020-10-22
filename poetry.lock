@@ -244,14 +244,6 @@ optional = false
 python-versions = "*"
 
 [[package]]
-name = "torchlight"
-version = "0.0.1"
-description = "Torch Light"
-category = "main"
-optional = false
-python-versions = "*"
-
-[[package]]
 name = "yapf"
 version = "0.30.0"
 description = "A formatter for Python code."
@@ -274,7 +266,7 @@ testing = ["pytest (>=3.5,<3.7.3 || >3.7.3)", "pytest-checkdocs (>=1.2.3)", "pyt
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "ce3481a1161cb5cf743f8b32c2413d3ee42b126b6160fa3c5da3e33a4c016477"
+content-hash = "7243013750c6fbd3a3ea63c55fe987cde162fc12466ae9a078f0134550c3c1be"
 
 [metadata.files]
 atomicwrites = [
@@ -411,9 +403,6 @@ six = [
 toml = [
     {file = "toml-0.10.1-py2.py3-none-any.whl", hash = "sha256:bda89d5935c2eac546d648028b9901107a595863cb36bae0c73ac804a9b4ce88"},
     {file = "toml-0.10.1.tar.gz", hash = "sha256:926b612be1e5ce0634a2ca03470f95169cf16f939018233a670519cb4ac58b0f"},
-]
-torchlight = [
-    {file = "torchlight-0.0.1.zip", hash = "sha256:8ac3f7e68f9599701e695d73745599fa5842cb49d3a0454c724b1163848bab5e"},
 ]
 yapf = [
     {file = "yapf-0.30.0-py2.py3-none-any.whl", hash = "sha256:3abf61ba67cf603069710d30acbc88cfe565d907e16ad81429ae90ce9651e0c9"},

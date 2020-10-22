@@ -1,12 +1,8 @@
 import os
-import shutil
-import json
 
-import pandas
-import xlrd
+import pandas as pd
 import re
 import string
-import torchlight
 from .io import IO
 import subprocess
 
@@ -16,8 +12,9 @@ class Preprocessor(IO):
         Base Processor
     """
 
-    METADATA_COLUMNS = ['Main New Gloss.1',
-                        'Consultant', 'Session', 'Scene', 'Start', 'End']
+    METADATA_COLUMNS = [
+        'Main New Gloss.1', 'Consultant', 'Session', 'Scene', 'Start', 'End'
+    ]
     METADATA_IGNORED_VALUES = ['============', '------------']
 
     def __init__(self, phase_name, argv=None):
@@ -49,8 +46,8 @@ class Preprocessor(IO):
         percentual = ((current / total) * 100)
         i = int(percentual // (100 / increments))
         prefix = "{} ".format(message) if message else ""
-        text = "\r{}|{: <{}}| {:.0f}%".format(
-            prefix, '█' * i, increments, percentual)
+        text = "\r{}|{: <{}}| {:.0f}%".format(prefix, '█' * i, increments,
+                                              percentual)
 
         if overwritable:
             end = "\r"
@@ -65,16 +62,15 @@ class Preprocessor(IO):
             if not columns:
                 columns = self.METADATA_COLUMNS
 
-            df = pandas.read_excel(self.arg.metadata_file,
-                                   na_values=self.METADATA_IGNORED_VALUES,
-                                   keep_default_na=False)
+            df = pd.read_excel(self.arg.metadata_file,
+                               na_values=self.METADATA_IGNORED_VALUES,
+                               keep_default_na=False)
             df = df[columns]
             df = df.dropna(how='all')
             df = df.head(nrows)
             norm_columns = {x: self.normalize(x) for x in columns}
             df = df.rename(index=str, columns=norm_columns)
-
-        return df
+            return df
 
     def __ensure_metadata(self):
         if os.path.isfile(self.arg.metadata_file):
@@ -85,20 +81,17 @@ class Preprocessor(IO):
             self.print_log("Downloading metadata to '{}'...".format(
                 self.arg.metadata_file))
             self.print_log("Source Url: {}".format(metadata_url))
-            metadata_ok = self.download_file(
-                metadata_url, self.arg.metadata_file)
+            metadata_ok = self.download_file(metadata_url,
+                                             self.arg.metadata_file)
         return metadata_ok
 
     def download_file(self, url, file):
         try:
             command = 'wget {}'.format(url)
-            args = {
-                '-O': file,
-                '-q': '',
-                '--show-progress': ''
-            }
+            args = {'-O': file, '-q': '', '--show-progress': ''}
             command_line = self.create_command_line(command, args)
-            subprocess.check_call(command_line, shell=True,
+            subprocess.check_call(command_line,
+                                  shell=True,
                                   stderr=subprocess.STDOUT)
             success = True
 
@@ -115,4 +108,4 @@ class Preprocessor(IO):
 
     def normalize(self, text):
         special_chars = re.escape(string.punctuation + string.whitespace)
-        return re.sub(r'['+special_chars+']', '_', text)
+        return re.sub(r'[' + special_chars + ']', '_', text)

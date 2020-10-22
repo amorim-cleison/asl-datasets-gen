@@ -14,7 +14,7 @@ This project aims to process the ASLLVD database to create the **ASLLVD-Skeleton
 
 
 ## Initialization
-To initialize project and install dependencies, you need run:
+To setup project dependencies, run:
 
 ```
 poetry install

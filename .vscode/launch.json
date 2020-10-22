@@ -9,7 +9,9 @@
             "type": "python",
             "request": "launch",
             "module": "main",
-            "console": "integratedTerminal"
+            "args": [ "-c", "./config/preproc-27.yaml"],
+            "console": "integratedTerminal",
+            "justMyCode": false
         }
     ]
 }

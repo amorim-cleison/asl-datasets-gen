@@ -2,28 +2,18 @@ import os
 import shutil
 import json
 
-import pandas
-import xlrd
-import re
-import string
-import torchlight
-
 
 class IO:
     """
         IO
     """
 
-    def __init__(self, argv=None):
-        self.arg = argv
-        self.init_environment()
-
-    def init_environment(self):
-        self.io = torchlight.IO(
-            self.arg.work_dir,
-            save_log=self.arg.save_log,
-            print_log=self.arg.print_log)
-        self.io.save_arg(self.arg)
+    def __init__(self, arg=None):
+        self.arg = arg
+        self.work_dir = self.arg.work_dir
+        self.save_log = self.arg.save_log
+        self.print_log = self.arg.print_log
+        self.save_arg(self.arg)
 
     def progress_bar(self, current, total):
         increments = 50
@@ -69,3 +59,17 @@ class IO:
 
     def print_log(self, log=''):
         self.io.print_log(log)
+
+    # TODO: confirm if this should continue here
+    def save_arg(self, arg):
+        import yaml
+        import sys
+        self.session_file = '{}/config.yaml'.format(self.work_dir)
+
+        # save arg
+        arg_dict = vars(arg)
+        if not os.path.exists(self.work_dir):
+            os.makedirs(self.work_dir)
+        with open(self.session_file, 'w') as f:
+            f.write('# command line: {}\n\n'.format(' '.join(sys.argv)))
+            yaml.dump(arg_dict, f, default_flow_style=False, indent=4)
