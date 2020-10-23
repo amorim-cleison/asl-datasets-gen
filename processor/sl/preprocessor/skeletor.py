@@ -6,9 +6,12 @@ import subprocess
 from tools import utils
 
 from .preprocessor import Preprocessor
+from commons.util import create_if_missing
+from commons.util import save_json
+from commons.util import read_json
+from commons.log import log
 
-
-class OpenPose_Preprocessor(Preprocessor):
+class Skeletor(Preprocessor):
     """
         Preprocessor form pose estimation with OpenPose
     """
@@ -18,8 +21,8 @@ class OpenPose_Preprocessor(Preprocessor):
 
     def __init__(self, argv=None):
         super().__init__('skeleton', argv)
-        self.openpose = self.get_openpose_path(self.arg)
-        self.model_path = self.get_model_path(self.arg)
+        self.openpose = self.get_openpose_path(self.args)
+        self.model_path = self.get_model_path(self.args)
 
     def start(self):
         label_map_path = '{}/label.json'.format(self.output_dir)
@@ -27,16 +30,16 @@ class OpenPose_Preprocessor(Preprocessor):
         file_label, label_name = self.load_label_info(self.input_dir)
 
         if not file_label:
-            self.print_log("Nothing to esimate.")
+            log("Nothing to esimate.", 1)
         else:
             # video processing:
-            self.print_log("Source directory: '{}'".format(self.input_dir))
-            self.print_log("Estimating poses to '{}'...".format(self.output_dir))
+            log("Source directory: '{}'".format(self.input_dir), 1)
+            log("Estimating poses to '{}'...".format(self.output_dir), 1)
             self.process_videos(self.input_dir, snippets_dir, self.output_dir,
                                 file_label, label_name, label_map_path)
 
             # save label map
-            self.print_log("Estimation complete.")
+            log("Estimation complete.", 1)
 
     def process_videos(self, input_dir, snippets_dir, output_dir,
                        file_label, label_name, label_map_path):
@@ -56,7 +59,7 @@ class OpenPose_Preprocessor(Preprocessor):
                     try:
                         # pose estimation
                         self.print_progress(video_num, total, video)
-                        self.ensure_dir_exists(snippets_dir)
+                        create_if_missing(snippets_dir)
                         self.run_openpose(video_path, snippets_dir)
 
                         # pack openpose ouputs
@@ -71,18 +74,18 @@ class OpenPose_Preprocessor(Preprocessor):
                         label_map[video_base_name] = cur_video
 
                         # save label map:
-                        self.save_json(label_map, label_map_path)
+                        save_json(label_map, label_map_path)
 
                     except subprocess.CalledProcessError as e:
-                        self.print_log(" FAILED ({} {})".format(
-                            e.returncode, e.output))
+                        log(" FAILED ({} {})".format(
+                            e.returncode, e.output), 1)
 
                     finally:
                         self.remove_dir(snippets_dir)
 
                 # Verify debug options:
-                if self.arg.debug:
-                    if video_num >= self.arg.debug_opts['pose_items']:
+                if self.args.debug:
+                    if video_num >= self.args.debug_opts['pose_items']:
                         break
 
         return label_map
@@ -91,7 +94,7 @@ class OpenPose_Preprocessor(Preprocessor):
         label_map = dict()
 
         if os.path.isfile(label_map_path):
-            label_map = self.read_json(label_map_path)
+            label_map = read_json(label_map_path)
         return label_map
 
     def load_label_info(self, input_dir):
@@ -115,7 +118,7 @@ class OpenPose_Preprocessor(Preprocessor):
         height, width, _ = frames[0].shape
         video_info = utils.openpose.json_pack(
             snippets_dir, video_base_name, width, height, label, label_idx)
-        self.save_json(video_info, output_sequence_path)
+        save_json(video_info, output_sequence_path)
         return video_info
 
     def run_openpose(self, video_path, snippets_dir):
@@ -129,7 +132,7 @@ class OpenPose_Preprocessor(Preprocessor):
             '--model_folder': self.model_path
         }
 
-        if not self.arg.debug:
+        if not self.args.debug:
             args['--face'] = ''
             args['--hand'] = ''
 
@@ -139,7 +142,7 @@ class OpenPose_Preprocessor(Preprocessor):
                               stdout=FNULL, stderr=subprocess.STDOUT)
 
     def print_progress(self, current, total, video):
-        self.print_log("* [{} / {}] \t{} ...".format(current, total, video))
+        log("* [{} / {}] \t{} ...".format(current, total, video), 1)
 
     def get_openpose_path(self, arg):
         openpose_path = self.OPENPOSE_PATH.format(

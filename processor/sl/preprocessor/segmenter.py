@@ -4,40 +4,48 @@ import shutil
 import tempfile
 
 import ffmpy
+from commons.util import log
 
 from .preprocessor import Preprocessor
+from tools.utils import create_filename
+from commons.util import save_items
 
 
-class Splitter_Preprocessor(Preprocessor):
+class Segmenter(Preprocessor):
     """
         Preprocessor for splitting original videos
     """
-
     def __init__(self, argv=None):
         super().__init__('segment', argv)
-        self.fps_in = self.arg.split['fps_in']
-        self.fps_out = self.arg.split['fps_out']
+        self.fps_in = self.args.split['fps_in']
+        self.fps_out = self.args.split['fps_out']
+        self.metadata_file = self.args.metadata_file
+        self.metadata_url = self.args.download['metadata_url']
+        self.file_pattern = self.args.download['file_pattern']
         # self.max_frames = self.arg.split['max_frames']
 
     def start(self):
         # Load metadata:
-        self.print_log("Loading metadata...")
+        log("Loading metadata...", 1)  # FIXME: print_log
         metadata = self.load_metadata(
+            self.metadata_file, self.metadata_url,
             ['Main New Gloss.1', 'Session', 'Scene', 'Start', 'End'])
 
         if metadata.empty:
-            self.print_log("Nothing to split.")
+            log("Nothing to split.", 1)  # FIXME: print_log
         else:
             # Split videos:
-            self.print_log("Source directory: '{}'".format(self.input_dir))
-            self.print_log("Splitting videos to '{}'...".format(self.output_dir))
-            labels, files_labels = self.split_videos(
-                metadata, self.input_dir, self.output_dir)
+            log("Source directory: '{}'".format(self.input_dir),
+                1)  # FIXME: print_log
+            log("Splitting videos to '{}'...".format(self.output_dir),
+                1)  # FIXME: print_log
+            labels, files_labels = self.split_videos(metadata, self.input_dir,
+                                                     self.output_dir)
 
             # Save labels:
-            self.print_log("Saving labels...")
+            log("Saving labels...")  # FIXME: print_log
             self.save_labels(self.output_dir, labels, files_labels)
-            self.print_log("Split finished.")
+            log("Split finished.")  # FIXME: print_log
 
     def split_videos(self, metadata, input_dir, output_dir):
         labels = set()
@@ -46,7 +54,7 @@ class Splitter_Preprocessor(Preprocessor):
 
         for row in metadata.itertuples():
             if row.Main_New_Gloss_1 and row.Session and row.Scene:
-                src_filename = self.format_filename(row.Session, row.Scene)
+                src_filename = create_filename(self.file_pattern, row.Session, row.Scene)
                 src_filename = src_filename.replace('/', '_')
                 src_filepath = '{}/{}'.format(input_dir, src_filename)
                 sign = self.normalize(str(row.Main_New_Gloss_1)).lower()
@@ -71,9 +79,8 @@ class Splitter_Preprocessor(Preprocessor):
 
                         # Split file in temporary diretory:
                         self.print_file(tgt_filename, src_filename, start, end)
-                        self.split_video(src_filepath, tmp_filepath,
-                                         sign, start, end,
-                                         self.fps_in, self.fps_out)
+                        self.split_video(src_filepath, tmp_filepath, sign,
+                                         start, end, self.fps_in, self.fps_out)
 
                         # Save file to target directory:
                         shutil.move(tmp_filepath, tgt_filepath)
@@ -86,48 +93,47 @@ class Splitter_Preprocessor(Preprocessor):
                     files_splitted.add(tgt_filename)
 
                     # Verify debug option:
-                    if self.arg.debug:
-                        if len(files_splitted) >= self.arg.debug_opts['split_items']:
+                    if self.args.debug:
+                        if len(files_splitted
+                               ) >= self.args.debug_opts['split_items']:
                             break
 
         return labels, files_labels
 
     def print_file(self, tgt_filename, src_filename, start, end):
-        self.print_log(
-            "* {} \t {} [{:.0f}~{:.0f}]".format(tgt_filename, src_filename, start, end))
+        log("* {} \t {} [{:.0f}~{:.0f}]".format(tgt_filename, src_filename,
+                                                start,
+                                                end))  # FIXME: print_log
 
-    def split_video(self, input_file, output_file,
-                    sign, start, end,
-                    input_fps, output_fps):
+    def split_video(self, input_file, output_file, sign, start, end, input_fps,
+                    output_fps):
         # Create video name:
         # filename, tgt_filepath = self.create_filename(sign, output_dir)
         start_sec = self.frame_to_sec(start, input_fps)
         length_sec = self.frame_to_sec(end - start, input_fps)
-        self.run_ffmpeg(input_file, output_file,
-                        start_sec, length_sec, output_fps)
+        self.run_ffmpeg(input_file, output_file, start_sec, length_sec,
+                        output_fps)
 
     def run_ffmpeg(self, src, tgt, start, length, fps):
         if not os.path.isfile(src):
-            self.print_log('Video not found: %s' % src)
+            log('Video not found: %s' % src)  # FIXME: print_log
 
         else:
-            ff = ffmpy.FFmpeg(
-                inputs={src: None},
-                outputs={tgt: ['-ss', start,
-                               '-t', length,
-                               '-r', str(fps),
-                               '-y',
-                               '-loglevel', 'error'
-                               ]}
-            )
+            ff = ffmpy.FFmpeg(inputs={src: None},
+                              outputs={
+                                  tgt: [
+                                      '-ss', start, '-t', length, '-r',
+                                      str(fps), '-y', '-loglevel', 'error'
+                                  ]
+                              })
             ff.run()
 
     def save_labels(self, output_dir, labels, files_labels):
         labels_file = "{}/label_name.txt".format(output_dir)
-        self.save_items(sorted(labels), labels_file)
+        save_items(sorted(labels), labels_file)
 
         files_labels_file = "{}/file_label.txt".format(output_dir)
-        self.save_map(files_labels, files_labels_file)
+        save_items(files_labels, files_labels_file)
 
     def create_filename(self, sign, current_files):
         idx = 0

@@ -1,52 +1,51 @@
 
-import argparse
 import os
 import pickle
-import sys
 
-import numpy as np
 from numpy.lib.format import open_memmap
 
-from .gendata_feeder import Gendata_Feeder
+from .feeder.gendata_feeder import Gendata_Feeder
 from .preprocessor import Preprocessor
+from tools.utils import progress_bar
 
+from commons.log import log
 
-class Gendata_Preprocessor(Preprocessor):
+class Normalizer(Preprocessor):
     """
         Generate data
     """
 
     def __init__(self, argv=None):
         super().__init__('normalize', argv)
-        self.joints = self.arg.gendata['joints']
-        self.channels = self.arg.gendata['channels']
-        self.num_person = self.arg.gendata['num_person']
-        self.max_frames = self.arg.gendata['max_frames']
-        self.repeat_frames = self.arg.gendata['repeat_frames']
+        self.joints = self.args.gendata['joints']
+        self.channels = self.args.gendata['channels']
+        self.num_person = self.args.gendata['num_person']
+        self.max_frames = self.args.gendata['max_frames']
+        self.repeat_frames = self.args.gendata['repeat_frames']
 
     def start(self):
-        self.print_log("Source directory: {}".format(self.input_dir))
-        self.print_log("Generating data to '{}'...".format(self.output_dir))
+        log("Source directory: {}".format(self.input_dir), 1)  # FIXME: print_log
+        log("Generating data to '{}'...".format(self.output_dir), 1)  # FIXME: print_log
 
         parts = ['train', 'test', 'val']
         joints = self.joints
         num_items = None
 
-        if self.arg.debug:
-            num_items = self.arg.debug_opts['gendata_items']
-            joints = self.arg.debug_opts['gendata_joints']
+        if self.args.debug:
+            num_items = self.args.debug_opts['gendata_items']
+            joints = self.args.debug_opts['gendata_joints']
 
         for part in parts:
             data_path = '{}/{}'.format(self.input_dir, part)
             label_path = '{}/{}_label.json'.format(self.input_dir, part)
             data_out_path = '{}/{}_data.npy'.format(self.output_dir, part)
             label_out_path = '{}/{}_label.pkl'.format(self.output_dir, part)
-            debug = self.arg.debug
+            debug = self.args.debug
 
-            self.print_log("Generating '{}' data...".format(part))
+            log(f"Generating '{part}' data...", 1)  # FIXME: print_log
             
             if not os.path.isfile(label_path):
-                self.print_log(" Nothing to generate")
+                log(" Nothing to generate"), 1  # FIXME: print_log
             else:
                 self.gendata(data_path, label_path, data_out_path, label_out_path,
                              num_person_in=self.num_person,
@@ -58,7 +57,7 @@ class Gendata_Preprocessor(Preprocessor):
                              debug=debug,
                              num_items=num_items)
 
-        self.print_log("Data generation finished.")
+        log("Data generation finished.", 1)  # FIXME: print_log
 
     def gendata(self,
                 data_path,
@@ -99,7 +98,7 @@ class Gendata_Preprocessor(Preprocessor):
 
         for i, _ in enumerate(sample_name):
             data, label = feeder[i]
-            self.progress_bar(i+1, total)
+            progress_bar(i+1, total)
             fp[i, :, 0:data.shape[1], :, :] = data
             sample_label.append(label)
 

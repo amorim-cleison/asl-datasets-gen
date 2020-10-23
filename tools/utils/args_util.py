@@ -19,6 +19,11 @@ CONFIG_FILE_ARG = Argument("-c",
 
 
 def load_args(description, arguments, argv=None):
+    """
+    Load the arguments provided to the application. This is the priority applied:
+    1. Arguments informed in shell;
+    2. Arguments informed in config file.
+    """
     assert (arguments is not None), "Arguments must be informed."
 
     # Load arguments from shell:
@@ -33,6 +38,11 @@ def load_args(description, arguments, argv=None):
     # Load from shell:
     parser.set_defaults(**configs)
     return parser.parse_args(argv)
+
+
+def save_args(args, path):
+    from commons.util import save_yaml
+    save_yaml(vars(args), path)
 
 
 def __create_parser(description, arguments=list()):

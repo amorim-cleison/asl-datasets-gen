@@ -1,9 +1,20 @@
-from tools.utils.util import import_class
+import processor.sl.preprocessor as pp
 
-from .preprocessor.io import IO
+from commons.util import delete_dir, create_if_missing
+from commons.log import log
 
 
-class VideoPreprocessor(IO):
+class VideoPreprocessor:
+
+    PHASES = {
+        "download": pp.Downloader,
+        "segment": pp.Segmenter,
+        "skeleton": pp.Skeletor,
+        "filter": pp.Filter,
+        "split": pp.Holdouter,
+        "normalize": pp.Normalizer
+    }
+
     def __init__(self, args=None):
         self.arg = args
         super().__init__(self.arg)
@@ -13,13 +24,11 @@ class VideoPreprocessor(IO):
 
         # Clean workdir:
         if self.arg.clean_workdir:
-            self.remove_dir(workdir)
-            self.create_dir(workdir)
-
-        phases = self.get_phases()
+            delete_dir(workdir)
+            create_if_missing(workdir)
 
         # Run pipeline:
-        for name, phase in phases.items():
+        for name, phase in self.PHASES.items():
             if name in self.arg.phases:
                 self.print_phase(name)
                 phase(self.arg).start()
@@ -28,26 +37,10 @@ class VideoPreprocessor(IO):
         # if self.arg.clean_workdir:
         #     self.remove_dir(workdir)
 
-        self.print_log("\nDONE")
-
-    def get_phases(self):
-        return dict(
-            download=import_class(
-                'processor.sl.preprocessor.downloader.Downloader_Preprocessor'
-            ),
-            segment=import_class(
-                'processor.sl.preprocessor.splitter.Splitter_Preprocessor'),
-            skeleton=import_class(
-                'processor.sl.preprocessor.openpose.OpenPose_Preprocessor'),
-            filter=import_class(
-                'processor.sl.preprocessor.keypoint.Keypoint_Preprocessor'),
-            split=import_class(
-                'processor.sl.preprocessor.holdout.Holdout_Preprocessor'),
-            normalize=import_class(
-                'processor.sl.preprocessor.gendata.Gendata_Preprocessor'))
+        log("\nDONE", 1)
 
     def print_phase(self, name):
-        self.print_log("")
-        self.print_log("-" * 60)
-        self.print_log(name.upper())
-        self.print_log("-" * 60)
+        log("", 1)
+        log("-" * 60, 1)
+        log(name.upper(), 1)
+        log("-" * 60, 1)

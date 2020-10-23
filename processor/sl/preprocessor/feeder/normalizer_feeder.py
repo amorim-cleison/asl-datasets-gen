@@ -15,7 +15,7 @@ from torchvision import datasets, transforms
 from feeder import tools
 
 
-class Gendata_Feeder(torch.utils.data.Dataset):
+class NormalizerFeeder(torch.utils.data.Dataset):
     """ Feeder for skeleton-based action recognition in kinetics-skeleton dataset
     Arguments:
         data_path: the path to '.npy' data, the shape of data should be (N, C, T, V, M)
@@ -61,7 +61,7 @@ class Gendata_Feeder(torch.utils.data.Dataset):
         self.channels = channels
         self.repeat_frames = repeat_frames
         self.num_items = num_items
-        
+
         self.load_data()
 
     def load_data(self):

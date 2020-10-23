@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
-import json
 import os
-import subprocess
 
 from tools import utils
 
 from .preprocessor import Preprocessor
+from commons.util import save_json
+from commons.util import read_json
+from commons.log import log
 
-
-class Keypoint_Preprocessor(Preprocessor):
+class Filter(Preprocessor):
     """
         Select estimated keypoints
     """
@@ -17,33 +17,33 @@ class Keypoint_Preprocessor(Preprocessor):
 
     def __init__(self, argv=None):
         super().__init__('filter', argv)
-        self.keypoints = self.__get_keypoints(self.arg)
+        self.keypoints = self.__get_keypoints(self.args)
 
     def start(self):
         src_label_path = '{}/label.json'.format(self.input_dir)
        
         if not os.path.isfile(src_label_path):
-            self.print_log("No data for keypoints selection")
+            log("No data for keypoints selection", 1)
         else:
-            self.print_log("Source directory: '{}'".format(self.input_dir))
-            self.print_log(
-                "Selecting keypoints to '{}'...".format(self.output_dir))
+            log("Source directory: '{}'".format(self.input_dir), 1)
+            log(
+                "Selecting keypoints to '{}'...".format(self.output_dir), 1)
             self.process_items(
                 self.input_dir, src_label_path, self.output_dir, 2)
-            self.print_log("Keypoint selection complete.")
+            log("Keypoint selection complete.", 1)
 
     def process_items(self, input_dir, src_label_path, output_dir, dimensions=2):
         # Target labels:
-        labels = self.read_json(src_label_path)
+        labels = read_json(src_label_path)
         tgt_label_path = '{}/label.json'.format(output_dir)
         label_map = self.load_label_map(tgt_label_path)
 
         for name, value in labels.items():
             if name not in label_map:
-                self.print_log("* {} ...".format(name))
+                log("* {} ...".format(name), 1)
                 cur_path = '{}/{}.json'.format(input_dir, name)
                 tgt_path = '{}/{}.json'.format(output_dir, name)
-                content = self.read_json(cur_path)
+                content = read_json(cur_path)
                 frames = content['data']
 
                 for frame in frames:
@@ -60,11 +60,11 @@ class Keypoint_Preprocessor(Preprocessor):
                         skeleton['pose'] = new_pose
 
                 # Save output:
-                self.save_json(content, tgt_path)
+                save_json(content, tgt_path)
 
                 # Save into label map:
                 label_map[name] = value
-                self.save_json(label_map, tgt_label_path)
+                save_json(label_map, tgt_label_path)
 
     def select_keypoints(self, keypoints, dimensions, score, pose):
         new_score = list()
@@ -84,7 +84,7 @@ class Keypoint_Preprocessor(Preprocessor):
         label_map = dict()
 
         if os.path.isfile(label_map_path):
-            label_map = self.read_json(label_map_path)
+            label_map = read_json(label_map_path)
         return label_map
 
     def __get_keypoints(self, arg):
