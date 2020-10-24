@@ -5,13 +5,14 @@ import subprocess
 
 from tools import utils
 
-from .preprocessor import Preprocessor
+from .processor import Processor
 from commons.util import create_if_missing
 from commons.util import save_json
 from commons.util import read_json
 from commons.log import log
 
-class Skeletor(Preprocessor):
+
+class Skeletor(Processor):
     """
         Preprocessor form pose estimation with OpenPose
     """
@@ -41,8 +42,8 @@ class Skeletor(Preprocessor):
             # save label map
             log("Estimation complete.", 1)
 
-    def process_videos(self, input_dir, snippets_dir, output_dir,
-                       file_label, label_name, label_map_path):
+    def process_videos(self, input_dir, snippets_dir, output_dir, file_label,
+                       label_name, label_map_path):
         # label info:
         label_map = self.load_label_map(label_map_path)
         total = len(file_label)
@@ -63,8 +64,11 @@ class Skeletor(Preprocessor):
                         self.run_openpose(video_path, snippets_dir)
 
                         # pack openpose ouputs
-                        video_info = self.pack_outputs(
-                            video_base_name, video_path, snippets_dir, output_dir, label, label_idx)
+                        video_info = self.pack_outputs(video_base_name,
+                                                       video_path,
+                                                       snippets_dir,
+                                                       output_dir, label,
+                                                       label_idx)
 
                         # label details for current video
                         cur_video = dict()
@@ -77,8 +81,8 @@ class Skeletor(Preprocessor):
                         save_json(label_map, label_map_path)
 
                     except subprocess.CalledProcessError as e:
-                        log(" FAILED ({} {})".format(
-                            e.returncode, e.output), 1)
+                        log(" FAILED ({} {})".format(e.returncode, e.output),
+                            1)
 
                     finally:
                         self.remove_dir(snippets_dir)
@@ -111,13 +115,13 @@ class Skeletor(Preprocessor):
             file_label = dict(map(lambda x: x.split(':'), file_label))
         return file_label, label_name
 
-    def pack_outputs(self, video_base_name, video_path, snippets_dir, output_dir, label, label_idx):
-        output_sequence_path = '{}/{}.json'.format(
-            output_dir, video_base_name)
+    def pack_outputs(self, video_base_name, video_path, snippets_dir,
+                     output_dir, label, label_idx):
+        output_sequence_path = '{}/{}.json'.format(output_dir, video_base_name)
         frames = utils.video.get_video_frames(video_path)
         height, width, _ = frames[0].shape
-        video_info = utils.openpose.json_pack(
-            snippets_dir, video_base_name, width, height, label, label_idx)
+        video_info = utils.openpose.json_pack(snippets_dir, video_base_name,
+                                              width, height, label, label_idx)
         save_json(video_info, output_sequence_path)
         return video_info
 
@@ -138,20 +142,21 @@ class Skeletor(Preprocessor):
 
         command_line = self.create_command_line(command, args)
         FNULL = open(os.devnull, 'w')
-        subprocess.check_call(command_line, shell=True,
-                              stdout=FNULL, stderr=subprocess.STDOUT)
+        subprocess.check_call(command_line,
+                              shell=True,
+                              stdout=FNULL,
+                              stderr=subprocess.STDOUT)
 
     def print_progress(self, current, total, video):
         log("* [{} / {}] \t{} ...".format(current, total, video), 1)
 
     def get_openpose_path(self, arg):
-        openpose_path = self.OPENPOSE_PATH.format(
-            arg.pose['openpose'])
+        openpose_path = self.OPENPOSE_PATH.format(arg.pose['openpose'])
         openpose_path = os.path.realpath(openpose_path)
 
         if not os.path.isfile(openpose_path):
             raise ValueError('Path to OpenPose is not valid.')
-            
+
         return openpose_path
 
     def get_model_path(self, arg):

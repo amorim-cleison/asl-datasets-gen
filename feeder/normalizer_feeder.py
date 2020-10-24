@@ -1,15 +1,10 @@
-
 import json
 import os
-import pickle
-import random
-import sys
 from math import ceil
 
 import numpy as np
 import torch
 import torch.nn as nn
-from torchvision import datasets, transforms
 
 # operation
 from feeder import tools
@@ -29,7 +24,6 @@ class NormalizerFeeder(torch.utils.data.Dataset):
         num_person_out: The number of people the feeder in the output sequence
         debug: If true, only use the first 100 samples
     """
-
     def __init__(self,
                  data_path,
                  label_path,
@@ -71,7 +65,7 @@ class NormalizerFeeder(torch.utils.data.Dataset):
         with open(label_path) as f:
             label_info = json.load(f)
 
-        self.sample_name = ["{}.json".format(k) for k in label_info]
+        self.sample_name = [f"{k}.json" for k in label_info]
 
         if self.num_items:
             self.sample_name = self.sample_name[0:self.num_items]
@@ -114,7 +108,7 @@ class NormalizerFeeder(torch.utils.data.Dataset):
             data = self.repeat_frames_in_data(data)
 
         data_numpy = np.zeros((self.C, self.T, self.V, self.num_person_in))
-        
+
         for frame_info in data:
             frame_index = frame_info['frame_index']
             for m, skeleton_info in enumerate(frame_info["skeleton"]):
@@ -148,8 +142,8 @@ class NormalizerFeeder(torch.utils.data.Dataset):
         # sort by score
         sort_index = (-data_numpy[2, :, :, :].sum(axis=1)).argsort(axis=1)
         for t, s in enumerate(sort_index):
-            data_numpy[:, t, :, :] = data_numpy[:, t, :, s].transpose((1, 2,
-                                                                       0))
+            data_numpy[:, t, :, :] = data_numpy[:, t, :, s].transpose(
+                (1, 2, 0))
         data_numpy = data_numpy[:, :, :, 0:self.num_person_out]
 
         # match poses between 2 frames

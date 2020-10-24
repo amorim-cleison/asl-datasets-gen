@@ -2,32 +2,6 @@ import numpy as np
 import random
 
 
-def downsample(data_numpy, step, random_sample=True):
-    # input: C,T,V,M
-    begin = np.random.randint(step) if random_sample else 0
-    return data_numpy[:, begin::step, :, :]
-
-
-def temporal_slice(data_numpy, step):
-    # input: C,T,V,M
-    C, T, V, M = data_numpy.shape
-    return data_numpy.reshape(C, T / step, step, V, M).transpose(
-        (0, 1, 3, 2, 4)).reshape(C, T / step, V, step * M)
-
-
-def mean_subtractor(data_numpy, mean):
-    # input: C,T,V,M
-    # naive version
-    if mean == 0:
-        return
-    C, T, V, M = data_numpy.shape
-    valid_frame = (data_numpy != 0).sum(axis=3).sum(axis=2).sum(axis=0) > 0
-    begin = valid_frame.argmax()
-    end = len(valid_frame) - valid_frame[::-1].argmax()
-    data_numpy[:, :end, :, :] = data_numpy[:, :end, :, :] - mean
-    return data_numpy
-
-
 def auto_pading(data_numpy, size, random_pad=False):
     C, T, V, M = data_numpy.shape
     if T < size:

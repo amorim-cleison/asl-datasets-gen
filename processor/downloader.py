@@ -5,10 +5,12 @@ import tempfile
 
 from commons.log import log
 
-from .preprocessor import Preprocessor
-from tools.utils.utils import create_filename
+from .processor import Processor
+from tools.utils.utils import create_filename, load_metadata
+from commons.util import download_file, exists
 
-class Downloader(Preprocessor):
+
+class Downloader(Processor):
     """
         Preprocessor for splitting original videos
     """
@@ -31,16 +33,16 @@ class Downloader(Preprocessor):
 
         # Load metadata:
         log("Loading metadata...", 1)  # FIXME: print_log
-        metadata = self.load_metadata(self.metadata_file, self.metadata_url,
-                                      ['Session', 'Scene'], nrows)
+        metadata = load_metadata(self.metadata_file, self.metadata_url,
+                                 ['Session', 'Scene'], nrows)
 
         if metadata.empty:
             log("Nothing to download.", 1)  # FIXME: print_log
         else:
             # Download files:
-            log("Source URL: '{}'".format(self.url))  # FIXME: print_log
-            log("Downloading files to '{}'...".format(
-                self.output_dir))  # FIXME: print_log
+            log(f"Source URL: '{self.url}'")  # FIXME: print_log
+            log(f"Downloading files to '{self.output_dir}'..."
+                )  # FIXME: print_log
             self.download_files_in_metadata(
                 metadata, self.url, self.output_dir)  # FIXME: print_log
             log("Download complete.", 1)  # FIXME: print_log
@@ -48,17 +50,23 @@ class Downloader(Preprocessor):
     def download_files_in_metadata(self, metadata, url, output_dir):
         for row in metadata.itertuples():
             if row.Session and row.Scene:
-                src_filename = create_filename(self.file_pattern, row.Session, row.Scene)
-                tgt_filename = src_filename.replace('/', '_')
-                tgt_file = '{}/{}'.format(output_dir, tgt_filename)
+                # Download 'camera 1' (front) view:
+                src_filename = create_filename(self.file_pattern, row.Session,
+                                               row.Scene, 1)
 
-                if not os.path.isfile(tgt_file):
-                    src_url = '{}/{}'.format(url, src_filename)
-                    tmp_file = '{}/{}'.format(tempfile.gettempdir(),
-                                              tgt_filename)
+                # TODO: Download 'camera 2' (side) view:
+                # src_filename = create_filename(self.file_pattern, row.Session,
+                #                                row.Scene, 2)
+
+                tgt_filename = src_filename.replace('/', '_')
+                tgt_file = f"{output_dir}/{tgt_filename}"
+
+                if not exists(tgt_file):
+                    src_url = f"{url}/{src_filename}"
+                    tmp_file = f"{tempfile.gettempdir()}/{tgt_filename}"
                     # Download file:
-                    log("* {} ...".format(src_filename), 1)
-                    success = self.download_file(src_url, tmp_file)
+                    log(f"* {src_filename} ...", 1)
+                    success = download_file(src_url, tmp_file)
 
                     if success:
                         # Save file to directory:

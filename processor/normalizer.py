@@ -1,20 +1,19 @@
-
 import os
 import pickle
 
 from numpy.lib.format import open_memmap
 
-from .feeder.gendata_feeder import Gendata_Feeder
-from .preprocessor import Preprocessor
+from feeder.normalizer_feeder import NormalizerFeeder
+from .processor import Processor
 from tools.utils import progress_bar
 
-from commons.log import log
+from commons.log import log, log_progress
 
-class Normalizer(Preprocessor):
+
+class Normalizer(Processor):
     """
         Generate data
     """
-
     def __init__(self, argv=None):
         super().__init__('normalize', argv)
         self.joints = self.args.gendata['joints']
@@ -24,8 +23,9 @@ class Normalizer(Preprocessor):
         self.repeat_frames = self.args.gendata['repeat_frames']
 
     def start(self):
-        log("Source directory: {}".format(self.input_dir), 1)  # FIXME: print_log
-        log("Generating data to '{}'...".format(self.output_dir), 1)  # FIXME: print_log
+        log(f"Source directory: {self.input_dir}", 1)  # FIXME: print_log
+        log(f"Generating data to '{self.output_dir}'...",
+            1)  # FIXME: print_log
 
         parts = ['train', 'test', 'val']
         joints = self.joints
@@ -43,11 +43,14 @@ class Normalizer(Preprocessor):
             debug = self.args.debug
 
             log(f"Generating '{part}' data...", 1)  # FIXME: print_log
-            
+
             if not os.path.isfile(label_path):
                 log(" Nothing to generate"), 1  # FIXME: print_log
             else:
-                self.gendata(data_path, label_path, data_out_path, label_out_path,
+                self.gendata(data_path,
+                             label_path,
+                             data_out_path,
+                             label_out_path,
                              num_person_in=self.num_person,
                              num_person_out=self.num_person,
                              max_frame=self.max_frames,
@@ -59,46 +62,46 @@ class Normalizer(Preprocessor):
 
         log("Data generation finished.", 1)  # FIXME: print_log
 
-    def gendata(self,
-                data_path,
-                label_path,
-                data_out_path,
-                label_out_path,
-                num_person_in,  # observe the first 5 persons
-                num_person_out,  # then choose 2 persons with the highest score
-                joints,
-                max_frame,
-                channels,
-                repeat_frames,
-                debug=False,
-                num_items=None):
+    def gendata(
+            self,
+            data_path,
+            label_path,
+            data_out_path,
+            label_out_path,
+            num_person_in,  # observe the first 5 persons
+            num_person_out,  # then choose 2 persons with the highest score
+            joints,
+            max_frame,
+            channels,
+            repeat_frames,
+            debug=False,
+            num_items=None):
 
-        feeder = Gendata_Feeder(
-            data_path=data_path,
-            label_path=label_path,
-            num_person_in=num_person_in,
-            num_person_out=num_person_out,
-            window_size=max_frame,
-            joints=joints,
-            channels=channels,
-            repeat_frames=repeat_frames,
-            debug=debug,
-            num_items=num_items)
+        feeder = NormalizerFeeder(data_path=data_path,
+                                label_path=label_path,
+                                num_person_in=num_person_in,
+                                num_person_out=num_person_out,
+                                window_size=max_frame,
+                                joints=joints,
+                                channels=channels,
+                                repeat_frames=repeat_frames,
+                                debug=debug,
+                                num_items=num_items)
 
         sample_name = feeder.sample_name
         sample_label = []
 
-        fp = open_memmap(
-            data_out_path,
-            dtype='float32',
-            mode='w+',
-            shape=(len(sample_name), channels, max_frame, joints, num_person_out))
+        fp = open_memmap(data_out_path,
+                         dtype='float32',
+                         mode='w+',
+                         shape=(len(sample_name), channels, max_frame, joints,
+                                num_person_out))
 
         total = len(sample_name)
 
         for i, _ in enumerate(sample_name):
             data, label = feeder[i]
-            progress_bar(i+1, total)
+            log_progress(i + 1, total)
             fp[i, :, 0:data.shape[1], :, :] = data
             sample_label.append(label)
 

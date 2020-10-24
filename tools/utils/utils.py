@@ -41,24 +41,7 @@ def __ensure_metadata(path, source_url):
     return metadata_ok
 
 
-def progress_bar(current, total, message=None, overwritable=False):
-    increments = 50
-    percentual = ((current / total) * 100)
-    i = int(percentual // (100 / increments))
-    prefix = "{} ".format(message) if message else ""
-    text = "\r{}|{: <{}}| {:.0f}%".format(prefix, '█' * i, increments,
-                                          percentual)
-
-    if overwritable:
-        end = "\r"
-    elif percentual >= 100:
-        end = "\n"
-    else:
-        end = ""
-    log(text, 1, end=end)
-
-
-def create_filename(file_pattern, session, scene):
+def create_filename(file_pattern, session, scene, camera=1):
     return file_pattern.format(session=session,
                                scene=int(scene),
-                               camera=1)
+                               camera=camera)

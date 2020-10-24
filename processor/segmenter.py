@@ -6,12 +6,12 @@ import tempfile
 import ffmpy
 from commons.util import log
 
-from .preprocessor import Preprocessor
+from .processor import Processor
 from tools.utils import create_filename
 from commons.util import save_items
+from tools.utils.utils import load_metadata
 
-
-class Segmenter(Preprocessor):
+class Segmenter(Processor):
     """
         Preprocessor for splitting original videos
     """
@@ -27,7 +27,7 @@ class Segmenter(Preprocessor):
     def start(self):
         # Load metadata:
         log("Loading metadata...", 1)  # FIXME: print_log
-        metadata = self.load_metadata(
+        metadata = load_metadata(
             self.metadata_file, self.metadata_url,
             ['Main New Gloss.1', 'Session', 'Scene', 'Start', 'End'])
 

@@ -3,12 +3,13 @@ import os
 
 from tools import utils
 
-from .preprocessor import Preprocessor
+from .processor import Processor
 from commons.util import save_json
 from commons.util import read_json
 from commons.log import log
 
-class Filter(Preprocessor):
+
+class Filter(Processor):
     """
         Select estimated keypoints
     """
@@ -21,18 +22,21 @@ class Filter(Preprocessor):
 
     def start(self):
         src_label_path = '{}/label.json'.format(self.input_dir)
-       
+
         if not os.path.isfile(src_label_path):
             log("No data for keypoints selection", 1)
         else:
             log("Source directory: '{}'".format(self.input_dir), 1)
-            log(
-                "Selecting keypoints to '{}'...".format(self.output_dir), 1)
-            self.process_items(
-                self.input_dir, src_label_path, self.output_dir, 2)
+            log("Selecting keypoints to '{}'...".format(self.output_dir), 1)
+            self.process_items(self.input_dir, src_label_path, self.output_dir,
+                               2)
             log("Keypoint selection complete.", 1)
 
-    def process_items(self, input_dir, src_label_path, output_dir, dimensions=2):
+    def process_items(self,
+                      input_dir,
+                      src_label_path,
+                      output_dir,
+                      dimensions=2):
         # Target labels:
         labels = read_json(src_label_path)
         tgt_label_path = '{}/label.json'.format(output_dir)
@@ -52,8 +56,8 @@ class Filter(Preprocessor):
                     for skeleton in skeletons:
                         # Select keypoints:
                         new_score, new_pose = self.select_keypoints(
-                            self.keypoints, dimensions,
-                            skeleton['score'], skeleton['pose'])
+                            self.keypoints, dimensions, skeleton['score'],
+                            skeleton['pose'])
 
                         # Update keypoints:
                         skeleton['score'] = new_score
@@ -77,7 +81,7 @@ class Filter(Preprocessor):
             # Select keypoints:
             pose_start = i * dimensions
             pose_end = pose_start + dimensions
-            new_pose.extend(pose[pose_start: pose_end])
+            new_pose.extend(pose[pose_start:pose_end])
         return new_score, new_pose
 
     def load_label_map(self, label_map_path):
