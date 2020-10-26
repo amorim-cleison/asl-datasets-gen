@@ -17,6 +17,7 @@ xlrd = "^1.2.0"
 flake8 = "^3.8.3"
 yapf = "^0.30.0"
 pytest = "^6.1.1"
+rope = "^0.18.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

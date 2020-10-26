@@ -1,0 +1,36 @@
+{
+    "new_data": {
+        "label": "twenty",
+        "gloss": "TWENTY",
+        "consultant": "Liz",
+        "session": "ASL_2008_01_11",
+        "scene": 2,
+        "frame_start": 2635,
+        "frame_end": 2661,
+        "handshape_dh_start": "crvd-L",
+        "handshape_dh_end": "flat-G",
+        "handshape_ndh_start": "",
+        "handshape_ndh_end": "",
+        "passive_arm": "N",
+        "frames": [
+            {
+                "frame_idx": 0,
+                "body": {
+                    ...
+                },
+                "face": {
+                    "x": [2, 3, 5],
+                    "y": [9, 0, 5],
+                    "z": [6, 5, 1],
+                    "score": [0.2, 0.6, 0.8]
+                },
+                "hand_left": {
+                    ...
+                },
+                "hand_right": {
+                    ...
+                }
+            }
+        ]
+    }
+}

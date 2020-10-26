@@ -1,10 +1,13 @@
 work_dir:   /home/student/dl2/grp5/cca5/dataset/workdir
 metadata_file:  /home/student/dl2/grp5/cca5/dataset/dai-asllvd.xlsx
+metadata_url: http://www.bu.edu/asllrp/dai-asllvd-BU_glossing_with_variations_HS_information-extended-urls-RU.xlsx
 clean_workdir: False
+debug: True
+mode: 3d
 
 phases: 
-  download, 
-  segment, 
+  # download, 
+  # segment, 
   skeleton, 
   filter,
   split,
@@ -12,21 +15,21 @@ phases:
 
 download:
   output_dir: ../../original
-  url: http://csr.bu.edu/ftp/asl/asllvd/asl-data2/quicktime
-  file_pattern: '{session}/scene{scene}-camera{camera}.mov'
-  metadata_url: http://www.bu.edu/asllrp/dai-asllvd-BU_glossing_with_variations_HS_information-extended-urls-RU.xlsx
+  url: http://csr.bu.edu/ftp/asl/asllvd/asl-data2/quicktime/{session}/scene{scene}-camera{camera}.mov
 
 segment:
   input_dir: ../../original
-  output_dir: segmented
+  output_dir: ./segmented
   fps_in: 60
   fps_out: 30
 
 skeleton:
-  openpose:   /home/student/dl2/grp5/cca5/openpose/openpose/build
   input_dir: ./segmented
   output_dir: ./skeleton
-  model_path: ./st-gcn/models
+  # openpose:   /home/student/dl2/grp5/cca5/openpose/openpose/build/examples/openpose/openpose.bin
+  # model_path: ./st-gcn/models
+  openpose_path:   D:\\openpose\\bin\\OpenPoseDemo.exe
+  models_dir: D:\\openpose\\models
 
 filter:
   input_dir: ./skeleton
@@ -52,8 +55,8 @@ normalize:
   max_frames: 63
 
 debug_opts:
-  download_items: 5
-  split_items: 5
-  pose_items: 5
+  download_items: 2
+  segment_items: 5
+  skeleton_items: 5
   gendata_items: 5
   gendata_joints: 27

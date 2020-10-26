@@ -5,13 +5,14 @@ import processor as p
 
 
 ARGUMENTS = [
-    Argument("-i", "--input_dir", type=str, help="Input directory"),
-    Argument('-o', '--output_dir', type=str, help='Output directory'),
-    Argument('-w', '--work_dir', type=str, help='Working directory'),
+    Argument('-w', '--work_dir', type=str, required=True, help='Working directory'),
     Argument('-cw', '--clean_workdir', type=bool, help='Clean work dir'),
-    Argument('-m', '--metadata_file', type=str, help='Metadata file'),
+    Argument('-e', '--metadata_file', type=str, help='Metadata file'),
+    Argument('-eu', '--metadata_url', type=str, help='Metadata URL'),
+    Argument('-fp', '--file_pattern', type=str, help='Filename pattern'),
     Argument('-d', '--debug', type=bool, help='Debug flag'),
-    Argument('--save_log', type=bool, default=True, help='Save log'),
+    Argument('-m', '--mode', options=["2d", "3d"], default="2d",
+             help='Extraction mode'),
     Argument('--print_log', type=bool, default=True, help='Print log'),
     Argument('-ph', '--phases', type=list, help='Phases of pipeline'),
     Argument('-sk', '--skeleton', type=dict, help='Poses configs'),
