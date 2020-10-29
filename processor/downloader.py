@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 import shutil
 import tempfile
+from itertools import product
 
 from commons.log import log, log_progress
+from commons.util import download_file, exists, filename
+from utils import create_video_name
 
 from .processor import Processor
-from tools.utils.utils import create_video_name
-from commons.util import download_file, exists, filename
-from itertools import product
 
 
 class Downloader(Processor):

@@ -67,10 +67,9 @@ class Processor:
             return default
 
     def load_metadata(self, columns, nrows):
-        from tools.utils import load_metadata
-        return load_metadata(
-            self.get_arg("metadata_file"), self.get_arg("metadata_url"),
-            columns, nrows)
+        from utils import load_metadata
+        return load_metadata(self.get_arg("metadata_file"),
+                             self.get_arg("metadata_url"), columns, nrows)
 
     def start(self):
         pass

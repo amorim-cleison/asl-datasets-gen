@@ -5,11 +5,10 @@ import tempfile
 
 from commons.log import log, log_progress
 from commons.util import (create_if_missing, delete_dir, execute_command,
-                          filename, filter_files, is_dir, is_file,
-                          normalize_path, read_json, save_json, exists)
-from tools.utils import (create_json_name, get_camera_files_if_all_matched,
-                         load_files_properties)
-from tools.utils.utils import create_video_name
+                          exists, filename, filter_files, is_dir, is_file,
+                          normalize_path, read_json, save_json)
+from utils import (create_json_name, create_video_name,
+                   get_camera_files_if_all_matched, load_files_properties)
 
 from .processor import Processor
 

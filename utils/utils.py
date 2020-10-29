@@ -1,4 +1,3 @@
-import re
 import pandas as pd
 from commons.util import download_file, exists, save_json, read_json, filter_files
 from commons.log import log

@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 import shutil
 import tempfile
-from tools.utils.utils import create_video_name, get_camera_files_if_all_matched
 
 import ffmpy
-from commons.util import create_if_missing, delete_dir, exists, filter_files, filename
 from commons.log import log, log_progress
-from tools.utils import (load_files_properties, remove_special_chars,
-                         save_files_properties)
+from commons.util import (create_if_missing, delete_dir, exists, filename,
+                          filter_files)
+from utils import (create_video_name, get_camera_files_if_all_matched,
+                   load_files_properties, remove_special_chars,
+                   save_files_properties)
 
 from .processor import Processor
 
