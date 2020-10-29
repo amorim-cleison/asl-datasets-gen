@@ -9,6 +9,7 @@ from commons.util import (create_if_missing, delete_dir, execute_command,
                           normalize_path, read_json, save_json)
 from utils import (create_json_name, create_video_name,
                    get_camera_files_if_all_matched, load_files_properties)
+from constant import PARTS_OPENPOSE_MAPPING, KEYPOINTS_COCO
 
 from .processor import Processor
 
@@ -17,13 +18,8 @@ class Skeletor(Processor):
     """
         Preprocessor form pose estimation with OpenPose
     """
-
-    PARTS_MAPPING = {
-        "pose_keypoints_2d": "body",
-        "face_keypoints_2d": "face",
-        "hand_left_keypoints_2d": "hand_left",
-        "hand_right_keypoints_2d": "hand_right"
-    }
+    PARTS_MAPPING = PARTS_OPENPOSE_MAPPING
+    KEYPOINTS = KEYPOINTS_COCO
 
     def __init__(self, argv=None):
         super().__init__('skeleton', argv)
@@ -127,7 +123,7 @@ class Skeletor(Processor):
         # Estimate skeletons for all the cameras:
         for cam, file in camera_files.items():
             log(f"   Estimating from '{filename(file)}' (camera {cam})...")
-            self.run_openpose(file, snippets_dir)
+            # self.run_openpose(file, snippets_dir)
 
             file_basename = filename(file, False)
             file_snippets = sorted(
@@ -213,17 +209,29 @@ class Skeletor(Processor):
             person = data['people'][0]
 
             for src_part, tgt_part in self.PARTS_MAPPING.items():
-                frame[tgt_part] = self.create_coordinates(person[src_part])
+                frame[tgt_part] = self.create_coordinates(
+                    tgt_part, person[src_part])
             frames.append(frame)
         return frames
 
-    def create_coordinates(self, keypoints):
+    def create_coordinates(self, part, keypoints):
         x = list()
         y = list()
         score = list()
+        name = list()
 
+        # Read coordinates:
         for i in range(0, len(keypoints), 3):
             x.append(keypoints[i])
             y.append(keypoints[i + 1])
             score.append(keypoints[i + 2])
-        return {"score": score, "x": x, "y": y}
+
+        # Get part names:
+        if (x and y and score):
+            name = self.KEYPOINTS[part]
+
+        assert (
+            len(name) == len(x) == len(y) == len(score)
+        ), f"Incompatible sizes between coordinates and parts names for the '{part}'."
+        # Return data:
+        return {"name": name, "score": score, "x": x, "y": y}
