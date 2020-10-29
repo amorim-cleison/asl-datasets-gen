@@ -20,6 +20,7 @@ class Skeletor(Processor):
     """
     PARTS_MAPPING = PARTS_OPENPOSE_MAPPING
     KEYPOINTS = KEYPOINTS_COCO
+    SKELETON_MODEL = "COCO"
 
     def __init__(self, argv=None):
         super().__init__('skeleton', argv)
@@ -123,7 +124,7 @@ class Skeletor(Processor):
         # Estimate skeletons for all the cameras:
         for cam, file in camera_files.items():
             log(f"   Estimating from '{filename(file)}' (camera {cam})...")
-            # self.run_openpose(file, snippets_dir)
+            self.run_openpose(file, snippets_dir)
 
             file_basename = filename(file, False)
             file_snippets = sorted(
@@ -142,7 +143,7 @@ class Skeletor(Processor):
             '--write_json': snippets_dir,
             '--display': 0,
             '--render_pose': 0,
-            '--model_pose': 'COCO',
+            '--model_pose': self.SKELETON_MODEL,
             '--model_folder': self.model_path
         }
         if not self.is_debug():
