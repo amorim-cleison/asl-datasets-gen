@@ -1,6 +1,6 @@
 import re
 import pandas as pd
-from commons.util import download_file, exists, save_json, read_json
+from commons.util import download_file, exists, save_json, read_json, filter_files
 from commons.log import log
 
 METADATA_COLUMNS = [
@@ -98,19 +98,34 @@ def create_filename(session_or_sign,
 
 
 def save_files_properties(files_properties, dir):
-    path = f"{dir}/files_properties.json"
-    save_json(files_properties, path)
+    # Generate file names x properties:
+    tgt_files_props = {
+        create_json_name(session_or_sign=src_prop["label"],
+                         person=src_prop["consultant"],
+                         scene=src_prop["scene"],
+                         camera=src_prop["camera"],
+                         dir=dir): src_prop
+        for _, src_prop in files_properties.items()
+    }
+    # Save only unexistent files:
+    for tgt_file, tgt_props in tgt_files_props.items():
+        if not exists(tgt_file):
+            save_json(tgt_props, tgt_file)
 
 
 def load_files_properties(dir):
-    files_properties = dict()
-    labels = list()
-    path = f"{dir}/files_properties.json"
+    # Read JSONs in dir (properties of videos):
+    properties = read_json(dir)
 
-    if exists(path):
-        files_properties = read_json(path)
-        labels = sorted(
-            set(value["label"] for _, value in files_properties.items()))
+    if properties:
+        # Map filename to properties:
+        files_properties = {prop["file"]: prop for prop in properties}
+
+        # Get and sort unique labels:
+        labels = sorted(set(prop["label"] for prop in properties))
+    else:
+        files_properties = dict()
+        labels = list()
     return files_properties, labels
 
 

@@ -36,11 +36,7 @@ ARGUMENTS = [
 PHASES = {
     "download": p.Downloader,
     "segment": p.Segmenter,
-    "skeleton": p.Skeletor,
-    "filter": p.Filter,
-    "split": p.Holdouter,
-    # FIXME: enable this again
-    # "normalize": pp.Normalizer
+    "skeleton": p.Skeletor
 }
 
 

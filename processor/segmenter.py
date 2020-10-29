@@ -70,10 +70,11 @@ class Segmenter(Processor):
                 frame_start = row.Start
                 frame_end = row.End
 
-                camera_files = get_camera_files_if_all_matched(session_or_sign=session,
-                                                               scene=scene,
-                                                               cameras=cameras,
-                                                               dir=input_dir)
+                camera_files = get_camera_files_if_all_matched(
+                    session_or_sign=session,
+                    scene=scene,
+                    cameras=cameras,
+                    dir=input_dir)
 
                 for cam_idx, (cam, file) in enumerate(camera_files.items()):
                     tgt_filepath = create_video_name(session_or_sign=sign,
@@ -108,18 +109,20 @@ class Segmenter(Processor):
 
                     # Save partial labels:
                     files_properties[tgt_filename] = self.create_properties(
-                        sign, gloss, row)
+                        tgt_filename, sign, gloss, row, cam)
                     save_files_properties(files_properties, self.output_dir)
 
         return files_properties
 
-    def create_properties(self, sign, gloss, row):
+    def create_properties(self, file, sign, gloss, row, cam):
         return {
+            "file": file,
             "label": sign,
             "gloss": gloss,
             "consultant": row.Consultant,
             "session": row.Session,
             "scene": int(row.Scene),
+            "camera": int(cam),
             "frame_start": int(row.Start),
             "frame_end": int(row.End),
             "handshape_dh_start": row.D_Start_HS,
