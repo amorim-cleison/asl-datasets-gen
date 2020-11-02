@@ -1,6 +1,5 @@
 import pandas as pd
-from commons.util import download_file, exists, save_json, read_json, filter_files
-from commons.log import log
+from commons.util import download_file, exists, save_json, read_json
 
 METADATA_COLUMNS = [
     'Main New Gloss.1', 'Consultant', 'Session', 'Scene', 'Start', 'End'
@@ -76,7 +75,7 @@ def create_filename(session_or_sign,
                     camera=None,
                     person=None,
                     dir=None):
-    from commons.util import normalize_path
+    from commons.util import normpath
     assert (session_or_sign is not None), "Session or sign must be informed"
     assert (scene is not None), "Session must be informed"
 
@@ -94,7 +93,7 @@ def create_filename(session_or_sign,
     video_name = f"{video_name}.{ext}"
     if dir is not None:
         video_name = f"{dir}/{video_name}"
-    return normalize_path(video_name).lower()
+    return normpath(video_name).lower()
 
 
 def save_files_properties(files_properties, dir):
