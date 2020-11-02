@@ -6,7 +6,7 @@ import tempfile
 from commons.log import log, log_progress
 from commons.util import (create_if_missing, delete_dir, execute_command,
                           exists, filename, filter_files, is_dir, is_file,
-                          normalize_path, read_json, save_json)
+                          normpath, read_json, save_json)
 from utils import (create_json_name, create_video_name,
                    get_camera_files_if_all_matched, load_files_properties)
 from constant import PARTS_OPENPOSE_MAPPING, KEYPOINTS_COCO
@@ -27,20 +27,20 @@ class Skeletor(Processor):
         self.mode = self.get_arg("mode")
 
         # OpenPose executable file:
-        self.openpose = normalize_path(
+        self.openpose = normpath(
             os.path.realpath(self.get_phase_arg("openpose_path")))
         assert is_file(
             self.openpose), "Path to OpenPose executable is not valid."
 
         # OpenPose models directory:
-        self.model_path = normalize_path(self.get_phase_arg("models_dir"))
+        self.model_path = normpath(self.get_phase_arg("models_dir"))
         assert is_dir(self.model_path), "Path to OpenPose model is not valid."
 
     def start(self):
         tempdir = tempfile.gettempdir()
         create_if_missing(self.output_dir)
 
-        snippets_dir = normalize_path(f"{tempdir}/snippets")
+        snippets_dir = normpath(f"{tempdir}/snippets")
         create_if_missing(snippets_dir)
 
         files_properties, _ = load_files_properties(self.input_dir)

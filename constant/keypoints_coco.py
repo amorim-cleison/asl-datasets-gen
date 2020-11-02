@@ -95,17 +95,17 @@ KEYPOINTS_COCO = {
         "lips_outer_bottom",
         "lips_outer_bottom_3",
         "lips_outer_bottom_4",
-        
+
         # Inner lips:
         "lips_inner_right",
-        "lips_inner_top_right",
-        "lips_inner_top_center",
-        "lips_inner_top_left",
+        "lips_inner_top_1",
+        "lips_inner_top",
+        "lips_inner_top_2",
         "lips_inner_left",
-        "lips_inner_bottom_left",
-        "lips_inner_bottom_center",
-        "lips_inner_bottom_right",
-        
+        "lips_inner_bottom_1",
+        "lips_inner_bottom",
+        "lips_inner_bottom_2",
+
         # Eye balls:
         "eye_ball_right",
         "eye_ball_left",
