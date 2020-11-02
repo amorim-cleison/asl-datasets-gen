@@ -1,0 +1,33 @@
+work_dir: ~/work/asllvd-skeleton/dataset
+metadata_file: ~/work/asllvd-skeleton/dataset/dai-asllvd.xlsx
+metadata_url: http://www.bu.edu/asllrp/dai-asllvd-BU_glossing_with_variations_HS_information-extended-urls-RU.xlsx
+clean_workdir: False
+debug: False
+mode: 3d
+
+phases: 
+  download, 
+  segment, 
+  skeleton
+
+download:
+  output_dir: ../original
+  url: http://csr.bu.edu/ftp/asl/asllvd/asl-data2/quicktime/{session}/scene{scene}-camera{camera}.mov
+
+segment:
+  input_dir: ../original
+  output_dir: ./segmented
+  fps_in: 60
+  fps_out: 30
+
+skeleton:
+  input_dir: ./segmented
+  output_dir: ./skeleton
+#  openpose: /opt/openpose/build/examples/openpose/openpose.bin
+  model_path: /opt/openpose/models
+  openpose: singularity exec --nv ~/openpose.sif /opt/openpose/build/examples/openpose/openpose.bin
+ 
+#debug_opts:
+#  download_items: 2
+#  segment_items: 5
+#  skeleton_items: 5
