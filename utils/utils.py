@@ -23,15 +23,16 @@ def load_metadata(path, source_url, columns=METADATA_COLUMNS, nrows=None):
         df = pd.read_excel(path,
                            na_values=METADATA_IGNORED_VALUES,
                            keep_default_na=False,
-                           nrows=(nrows * 2))
+                           nrows=(nrows * 2) if (nrows is not None) else None)
         df = df[columns]
         df = df.dropna(how='all')
         df = df.where(pd.notnull(df), None)
-        df = df.head(nrows)
+
+        if (nrows is not None):
+            df = df.head(nrows)
         norm_columns = {x: remove_special_chars(x) for x in columns}
         df = df.rename(index=str, columns=norm_columns)
         return df
-
 
 def __ensure_metadata(path, source_url):
     if exists(path):
