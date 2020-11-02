@@ -1,4 +1,4 @@
-from commons.util import create_if_missing, exists, save_args
+from commons.util import create_if_missing, exists, save_args, normpath
 
 
 class Processor:
@@ -10,7 +10,7 @@ class Processor:
         self.phase_name = phase_name
         self.phase_args = self.args[phase_name]
         self.debug_args = self.get_arg("debug_opts")
-        self.work_dir = self.get_arg("work_dir")
+        self.work_dir = normpath(self.get_arg("work_dir"))
 
         # Workdir:
         assert (self.work_dir is not None), "Workdir must be informed"
@@ -27,12 +27,11 @@ class Processor:
         create_if_missing(self.output_dir)
 
     def __try_get_as_path(self, attr):
-        from os.path import realpath
         value = self.get_phase_arg(attr)
 
         if value is not None:
             fullpath = f"{self.work_dir}/{value}"
-            path = realpath(fullpath)
+            path = normpath(fullpath)
         else:
             path = None
         return path
@@ -68,7 +67,7 @@ class Processor:
 
     def load_metadata(self, columns, nrows):
         from utils import load_metadata
-        return load_metadata(self.get_arg("metadata_file"),
+        return load_metadata(normpath(self.get_arg("metadata_file")),
                              self.get_arg("metadata_url"), columns, nrows)
 
     def start(self):
