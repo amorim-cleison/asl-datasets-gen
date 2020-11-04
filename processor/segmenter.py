@@ -152,23 +152,6 @@ class Segmenter(Processor):
         ff = ffmpy.FFmpeg(inputs=input_args, outputs=output_args)
         ff.run()
 
-        import cv2
-        create_if_missing(f'{tgt}/cv2')
-
-        vid = cv2.VideoCapture(src)
-        cur_fps = vid.get(5)
-        vid.set(5, fps)
-
-        for i in range(start, length):
-            vid.set(1, i)
-            ret, still = vid.read()
-            cv2.imwrite(f'{tgt}/cv2/_frame{i}.jpg', still)
-
-
-
-    # def create_target_name(self, sign, person, scene, camera):
-    #     return f"{sign:s}-{person:s}-scn{scene:03d}-cam{camera:02d}.mov"
-
     def frame_to_sec(self, frame, fps):
         res = frame / fps
         secs, milis = divmod(res * 1000, 1000)
