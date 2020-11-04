@@ -43,7 +43,7 @@ PyYAML = "^5.3.1"
 type = "git"
 url = "https://github.com/amorim-cleison/commons-python.git"
 reference = "develop"
-resolved_reference = "574ab9b7006a2da82bff0f0ed7554c5a93b3dd58"
+resolved_reference = "0f68578301265a735625d293baac5986f142189f"
 
 [[package]]
 name = "ffmpy"

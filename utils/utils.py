@@ -33,7 +33,6 @@ def load_metadata(path, source_url, columns=METADATA_COLUMNS, nrows=None):
         df = df.rename(index=str, columns=norm_columns)
         return df
 
-
 def __ensure_metadata(path, source_url):
     if exists(path):
         metadata_ok = True
