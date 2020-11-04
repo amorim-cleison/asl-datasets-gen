@@ -20,6 +20,11 @@ To setup project dependencies, run:
 poetry install
 ```
 
+## Additional Requirements
+To execute video segmentation, this project requires `ffmpeg` to be installed in your Operational System:
+```
+sudo apt-get install ffmpeg
+```
 
 ## Preprocessing
 
