@@ -7,7 +7,7 @@ mode: 3d
 
 phases: 
   # download, 
-  segment, 
+  # segment, 
   skeleton
 
 download:
