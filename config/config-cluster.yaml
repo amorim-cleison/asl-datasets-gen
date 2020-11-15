@@ -6,8 +6,8 @@ debug: False
 mode: 3d
 
 phases: 
-  download, 
-  segment, 
+  # download, 
+  # segment, 
   skeleton
 
 download:
@@ -23,11 +23,5 @@ segment:
 skeleton:
   input_dir: ./segmented
   output_dir: ./skeleton
-#  openpose: /opt/openpose/build/examples/openpose/openpose.bin
-  model_path: /opt/openpose/models
-  openpose: singularity exec --nv ~/openpose.sif /opt/openpose/build/examples/openpose/openpose.bin
- 
-#debug_opts:
-#  download_items: 2
-#  segment_items: 5
-#  skeleton_items: 5
+  models_dir: /openpose/models
+  openpose_path: singularity exec --nv ~/openpose.sif /openpose/build/examples/openpose/openpose.bin

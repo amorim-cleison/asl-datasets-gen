@@ -27,14 +27,13 @@ class Skeletor(Processor):
         self.mode = self.get_arg("mode")
 
         # OpenPose executable file:
-        self.openpose = normpath(
-            os.path.realpath(self.get_phase_arg("openpose_path")))
-        assert is_file(
-            self.openpose), "Path to OpenPose executable is not valid."
+        self.openpose = self.get_phase_arg("openpose_path")
+        # self.openpose = normpath(self.get_phase_arg("openpose_path"))
+        # assert is_file(self.openpose), "Path to OpenPose executable is not valid."
 
         # OpenPose models directory:
         self.model_path = normpath(self.get_phase_arg("models_dir"))
-        assert is_dir(self.model_path), "Path to OpenPose model is not valid."
+        # assert is_dir(self.model_path), "Path to OpenPose model is not valid."
 
     def start(self):
         tempdir = tempfile.gettempdir()
