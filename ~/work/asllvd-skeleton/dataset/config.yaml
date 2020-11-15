@@ -1,0 +1,34 @@
+clean_workdir: false
+config: config/config-cluster.yaml
+debug: false
+debug_opts:
+    download_items: 2
+    gendata_joints: 18
+    pose_items: 3
+    split_items: 5
+download:
+    output_dir: ../original
+    url: http://csr.bu.edu/ftp/asl/asllvd/asl-data2/quicktime/{session}/scene{scene}-camera{camera}.mov
+file_pattern: null
+filter: &id001 {}
+metadata_file: ~/work/asllvd-skeleton/dataset/dai-asllvd.xlsx
+metadata_url: http://www.bu.edu/asllrp/dai-asllvd-BU_glossing_with_variations_HS_information-extended-urls-RU.xlsx
+mode: 3d
+normalize: *id001
+phases:
+- download
+- segment
+- skeleton
+print_log: true
+segment:
+    fps_in: 60
+    fps_out: 30
+    input_dir: ../original
+    output_dir: ./segmented
+skeleton:
+    input_dir: ./segmented
+    model_path: /opt/openpose/models
+    openpose: singularity exec --nv ~/openpose.sif /opt/openpose/build/examples/openpose/openpose.bin
+    output_dir: ./skeleton
+split: *id001
+work_dir: ~/work/asllvd-skeleton/dataset
