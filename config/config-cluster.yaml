@@ -24,4 +24,4 @@ skeleton:
   input_dir: ./segmented
   output_dir: ./skeleton
   models_dir: /openpose/models
-  openpose_path: singularity exec --nv ~/openpose.sif /openpose/build/examples/openpose/openpose.bin
+  openpose_path: openpose
