@@ -24,7 +24,7 @@ KEYPOINTS_COCO = {
     PART_FACE: [
         # Face contour:
         "face_contour_right",
-        "face_contour_right_1"
+        "face_contour_right_1",
         "face_contour_right_2",
         "face_contour_right_3",
         "face_contour_right_4",
@@ -108,7 +108,7 @@ KEYPOINTS_COCO = {
 
         # Eye balls:
         "eye_ball_right",
-        "eye_ball_left",
+        "eye_ball_left"
     ],
     PART_HAND_LEFT: [
         "wrist",
@@ -141,7 +141,7 @@ KEYPOINTS_COCO = {
         "pinky_base",
         "pinky_joint_1",
         "pinky_joint_2",
-        "pinky_tip",
+        "pinky_tip"
     ],
     PART_HAND_RIGHT: [
         "wrist",
@@ -174,6 +174,6 @@ KEYPOINTS_COCO = {
         "pinky_base",
         "pinky_joint_1",
         "pinky_joint_2",
-        "pinky_tip",
+        "pinky_tip"
     ]
 }

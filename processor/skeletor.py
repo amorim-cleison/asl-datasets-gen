@@ -232,7 +232,7 @@ class Skeletor(Processor):
 
         assert (
             len(name) == len(x) == len(y) == len(score)
-        ), f"Incompatible sizes between coordinates and parts names for the '{part}'. (name: {len(name)}, x: {len(x)}, y: {len(y)}, score: {len(score)})"
+        ), f"Incompatible sizes between coordinates and parts names for the '{part}' (name: {len(name)}, x: {len(x)}, y: {len(y)}, score: {len(score)})."
 
         # Return data:
         return {"name": name, "score": score, "x": x, "y": y}
