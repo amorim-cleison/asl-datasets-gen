@@ -80,10 +80,7 @@ class Skeletor(Processor):
                 properties = self.get_properties(label, scene, cameras,
                                                  consultant, files_properties)
 
-                try:
-                    # TODO: remove
-                    raise Exception("Falhou")
-                    
+                try:                    
                     create_if_missing(snippets_dir)
 
                     # Estimate skeletons/snippets:
