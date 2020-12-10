@@ -3,7 +3,7 @@ import copy
 import os
 import tempfile
 
-from commons.log import log, log_progress
+from commons.log import log, log_err, log_progress
 from commons.util import (create_if_missing, delete_dir, execute_command,
                           exists, filename, filter_files, is_dir, is_file,
                           normpath, read_json, save_json)
@@ -81,6 +81,9 @@ class Skeletor(Processor):
                                                  consultant, files_properties)
 
                 try:
+                    # TODO: remove
+                    raise Exception("Falhou")
+                    
                     create_if_missing(snippets_dir)
 
                     # Estimate skeletons/snippets:
@@ -93,7 +96,7 @@ class Skeletor(Processor):
                     # Save data:
                     save_json(data, tgt_filepath)
                 except Exception as e:
-                    log(f"   FAILED ({str(e)})", 1)
+                    log_err(f"   FAILED ({str(e)})", ex=e)
                 finally:
                     delete_dir(snippets_dir)
 
