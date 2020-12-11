@@ -199,7 +199,7 @@ class Skeletor(Processor):
         frames = list()
 
         def get_frame_index(path):
-            return int(filename(path, False).split("_")[1])
+            return int(filename(path, False).split("_")[-2])
 
         for path in snippets:
             data = read_json(path)
