@@ -70,14 +70,23 @@ class Normalizer(Processor):
         """
         from commons.model import Coordinate
 
-        # Find shoulders:
+        # Find indexes:
         body = frame["body"]
+        idx_neck = body["name"].index("neck")
         idx_left_shoulder = body["name"].index("shoulder_left")
         idx_right_shoulder = body["name"].index("shoulder_right")
 
-        assert (idx_left_shoulder >= 0) and (idx_right_shoulder >=
-                                             0), "Could not find shoulders for normalizing skeleton."
-        # Create the related coordinates:
+        # Find neck:
+        neck = Coordinate(
+            body["x"][idx_neck],
+            body["y"][idx_neck],
+            body["z"][idx_neck],
+            body["score"][idx_neck],
+            name="neck")
+        if neck.is_zero():
+            raise Exception("Could not find `neck` for normalizing skeleton.")    
+
+        # Find a valid shoulder:
         left_shoulder = Coordinate(
             body["x"][idx_left_shoulder],
             body["y"][idx_left_shoulder],
@@ -90,6 +99,12 @@ class Normalizer(Processor):
             body["z"][idx_right_shoulder],
             body["score"][idx_right_shoulder],
             name="right_shoulder")
+        if not left_shoulder.is_zero():
+            shoulder = left_shoulder
+        elif not right_shoulder.is_zero():
+            shoulder = right_shoulder
+        else:
+            raise Exception("Could not find a `shoulder` for normalizing skeleton.")
 
         # Calculate distance:
-        return left_shoulder.dist_to(right_shoulder)
+        return neck.dist_to(shoulder)
