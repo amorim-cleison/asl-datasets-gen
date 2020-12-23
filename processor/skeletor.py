@@ -37,8 +37,6 @@ class Skeletor(Processor):
 
     def start(self):
         tempdir = tempfile.gettempdir()
-        create_if_missing(self.output_dir)
-
         snippets_dir = normpath(f"{tempdir}/snippets")
         create_if_missing(snippets_dir)
 

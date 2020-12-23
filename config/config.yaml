@@ -8,7 +8,8 @@ mode: 3d
 phases: 
   # download, 
   # segment, 
-  skeleton
+  # skeleton,
+  normalize
 
 download:
   output_dir: ../../original
@@ -27,6 +28,10 @@ skeleton:
   # model_path: ./st-gcn/models
   openpose_path:   D:\\openpose\\bin\\OpenPoseDemo.exe
   models_dir: D:\\openpose\\models
+
+normalize:
+  input_dir: ./skeleton
+  output_dir: ./normalized
 
 debug_opts:
   download_items: 2

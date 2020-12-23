@@ -8,7 +8,8 @@ mode: 3d
 phases: 
   # download, 
   # segment, 
-  skeleton
+  # skeleton,
+  normalize
 
 download:
   output_dir: ../original
@@ -25,3 +26,7 @@ skeleton:
   output_dir: ./skeleton
   models_dir: /openpose/models
   openpose_path: openpose
+
+normalize:
+  input_dir: ./skeleton
+  output_dir: ./normalized

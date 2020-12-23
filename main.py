@@ -16,11 +16,9 @@ ARGUMENTS = [
     Argument('--print_log', type=bool, default=True, help='Print log'),
     Argument('-ph', '--phases', type=list, help='Phases of pipeline'),
     Argument('-sk', '--skeleton', type=dict, help='Poses configs'),
-    Argument('-fi', '--filter', type=dict, help='Keypoint configs'),
-    Argument('-sp', '--split', type=dict, help='Holdout configs'),
     Argument('-sg', '--segment', type=dict, help='Split configs'),
     Argument('-dl', '--download', type=dict, help='Download configs'),
-    Argument('-no', '--normalize', type=dict, help='Data generation configs'),
+    Argument('-no', '--normalize', type=dict, help='Normalization configs'),
     Argument('-do',
              '--debug_opts',
              type=dict,
@@ -36,7 +34,8 @@ ARGUMENTS = [
 PHASES = {
     "download": p.Downloader,
     "segment": p.Segmenter,
-    "skeleton": p.Skeletor
+    "skeleton": p.Skeletor,
+    "normalize": p.Normalizer
 }
 
 
