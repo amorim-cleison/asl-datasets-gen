@@ -7,9 +7,9 @@ mode: 3d
 
 phases: 
   # download, 
-  # segment, 
+  segment, 
   # skeleton,
-  normalize
+  # normalize
 
 download:
   output_dir: ../../original

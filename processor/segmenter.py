@@ -5,10 +5,9 @@ import tempfile
 import ffmpy
 from commons.log import log, log_progress
 from commons.util import (create_if_missing, delete_dir, exists, filename,
-                          filter_files)
+                          filter_files, replace_special_chars, is_empty)
 from utils import (create_video_name, get_camera_files_if_all_matched,
-                   load_files_properties, remove_special_chars,
-                   save_files_properties)
+                   load_files_properties, save_files_properties)
 
 from .processor import Processor
 
@@ -59,13 +58,13 @@ class Segmenter(Processor):
         last_gloss = None
 
         for row_idx, row in enumerate(metadata.itertuples()):
-            gloss = row.Main_New_Gloss if row.Main_New_Gloss else last_gloss
+            gloss = row.Main_New_Gloss if not is_empty(row.Main_New_Gloss) else last_gloss
             last_gloss = gloss
 
             if gloss and row.Session and row.Scene:
                 # Important variables:
-                sign = remove_special_chars(gloss).lower()
-                consultant = remove_special_chars(row.Consultant).lower()
+                sign = replace_special_chars(gloss, "_").lower()
+                consultant = replace_special_chars(row.Consultant, "_").lower()
                 session = row.Session
                 scene = row.Scene
                 frame_start = row.Start

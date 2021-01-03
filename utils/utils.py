@@ -1,17 +1,10 @@
 import pandas as pd
-from commons.util import download_file, exists, save_json, read_json
+from commons.util import download_file, exists, save_json, read_json, replace_special_chars 
 
 METADATA_COLUMNS = [
     'Main New Gloss.1', 'Consultant', 'Session', 'Scene', 'Start', 'End'
 ]
 METADATA_IGNORED_VALUES = ['============', '------------']
-
-
-def remove_special_chars(text):
-    import string
-    import re
-    special_chars = re.escape(string.punctuation + string.whitespace)
-    return re.sub(r'[' + special_chars + ']', '_', text)
 
 
 def load_metadata(path, source_url, columns=METADATA_COLUMNS, nrows=None):
@@ -29,7 +22,7 @@ def load_metadata(path, source_url, columns=METADATA_COLUMNS, nrows=None):
 
         if (nrows is not None):
             df = df.head(nrows)
-        norm_columns = {x: remove_special_chars(x) for x in columns}
+        norm_columns = {x: replace_special_chars(x, "_") for x in columns}
         df = df.rename(index=str, columns=norm_columns)
         return df
 
