@@ -4,8 +4,8 @@ import tempfile
 from itertools import product
 
 from commons.log import log, log_progress
-from commons.util import download_file, exists, filename
-from utils import create_video_name
+from commons.util import download_file, exists, extension, filename
+from utils import create_filename
 
 from .processor import Processor
 
@@ -14,61 +14,51 @@ class Downloader(Processor):
     """
         Preprocessor for splitting original videos
     """
+
     def __init__(self, args=None):
         super().__init__('download', args)
-        self.url = self.get_phase_arg("url")
+        self.url = self.get_arg("url")
 
-    def start(self):
-        self.start_download()
-
-    def start_download(self):
+    def run(self, metadata):
         """
         Example: http://csr.bu.edu/ftp/asl/asllvd/asl-data2/quicktime/
         <session>/scene<scene#>-camera<camera#>.mov
         """
-        nrows = self.get_debug_arg(
-            "download_items") if self.is_debug() else None
-
-        # Load metadata:
-        log("Loading metadata...", 1)
-        metadata_rows = self.load_metadata(['Session', 'Scene'], nrows)
-
-        if metadata_rows.empty:
-            log("Nothing to download.", 1)
-        else:
-            # Download files:
-            log(f"Saving files to folder '{self.output_dir}'...")
-
-            self.download_files_in_metadata(metadata_rows, self.url,
+        if not metadata.empty:
+            self.download_files_in_metadata(metadata, self.url,
                                             self.get_cameras(),
                                             self.output_dir)
-            log("Download complete.", 1)
 
     def download_files_in_metadata(self, metadata, url, cameras, output_dir):
         tempdir = tempfile.gettempdir()
         files = product(metadata.itertuples(), cameras)
+        ext = extension(url)
         total = len(metadata.index) * len(cameras)
 
         for idx, (row, cam) in enumerate(files):
-            if row.Session and row.Scene:
-                tgt_file = create_video_name(row.Session,
-                                             scene=row.Scene,
-                                             camera=cam,
-                                             dir=output_dir)
-                log_progress(idx + 1, total, filename(tgt_file, True))
+            if row.session and row.scene:
+                tgt_file = create_filename(session_or_sign=row.session,
+                                           scene=row.scene,
+                                           camera=cam,
+                                           dir=output_dir,
+                                           ext=ext)
+                log_progress(idx + 1, total, filename(tgt_file))
 
-                if not exists(tgt_file):
+                if exists(tgt_file):
+                    log("    SKIPPED")
+                else:
                     # Download file:
                     src_url = self.create_source_url(url,
-                                                     session=row.Session,
-                                                     scene=row.Scene,
+                                                     session=row.session,
+                                                     scene=row.scene,
                                                      camera=cam)
-                    tmp_file = create_video_name(row.Session,
-                                                 scene=row.Scene,
-                                                 camera=cam,
-                                                 dir=tempdir)
+                    tmp_file = create_filename(session_or_sign=row.session,
+                                               scene=row.scene,
+                                               camera=cam,
+                                               dir=tempdir,
+                                               ext=ext)
 
-                    log(f"    Downloading from '{src_url}'...", 2)
+                    log(f"    Downloading '{src_url}'...", 2)
                     success, err = download_file(src_url, tmp_file)
 
                     if success:

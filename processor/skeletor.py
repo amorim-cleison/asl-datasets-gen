@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
 import copy
-import os
 import tempfile
 
 from commons.log import log, log_err, log_progress
 from commons.util import (create_if_missing, delete_dir, execute_command,
-                          exists, filename, filter_files, is_dir, is_file,
-                          normpath, read_json, save_json)
-from utils import (create_json_name, create_video_name,
-                   get_camera_files_if_all_matched, load_files_properties)
+                          exists, filename, filter_files, normpath, read_json,
+                          save_json)
+from utils import (create_filename, get_camera_dirs_if_all_matched)
 from constant import PARTS_OPENPOSE_MAPPING, KEYPOINTS_COCO
 
 from .processor import Processor
@@ -27,58 +25,51 @@ class Skeletor(Processor):
         self.mode = self.get_arg("mode")
 
         # OpenPose executable file:
-        self.openpose = self.get_phase_arg("openpose_path")
-        # self.openpose = normpath(self.get_phase_arg("openpose_path"))
-        # assert is_file(self.openpose), "Path to OpenPose executable is not valid."
+        self.openpose = self.get_arg("openpose_path")
+        assert exists(
+            self.openpose), "Path to OpenPose executable is not valid."
 
         # OpenPose models directory:
-        self.model_path = normpath(self.get_phase_arg("models_dir"))
-        # assert is_dir(self.model_path), "Path to OpenPose model is not valid."
+        self.model_path = normpath(self.get_arg("models_dir"))
+        assert exists(self.model_path), "Path to OpenPose model is not valid."
 
-    def start(self):
+    def run(self, metadata):
         tempdir = tempfile.gettempdir()
         snippets_dir = normpath(f"{tempdir}/snippets")
         create_if_missing(snippets_dir)
 
-        files_properties, _ = load_files_properties(self.input_dir)
-
-        if not files_properties:
-            log("Nothing to estimate.", 1)
-        else:
-            # video processing:
-            log(f"Source directory: '{self.input_dir}'", 1)
-            log(f"Estimating poses to '{self.output_dir}'...", 1)
-            self.process_videos(self.input_dir, snippets_dir,
-                                self.output_dir, files_properties,
+        if not metadata.empty:
+            self.process_videos(metadata, self.input_dir, snippets_dir,
+                                self.output_dir,
                                 self.get_cameras(), self.mode)
-            log("Estimation complete.", 1)
 
-    def process_videos(self, input_dir, snippets_dir, output_dir,
-                       files_properties, cameras, mode):
-        # Select disctinct items by label x consultant x scene:
-        distinct_items, total = self.get_distinct_items(files_properties)
+    def process_videos(self, metadata, input_dir, snippets_dir, output_dir,
+                       cameras, mode):
+        total = len(metadata.index)
 
-        for idx, (label, consultant, scene) in enumerate(distinct_items):
-            tgt_filepath = create_json_name(session_or_sign=label,
-                                            person=consultant,
-                                            scene=scene,
-                                            dir=output_dir)
-            log_progress(idx + 1, total, filename(tgt_filepath))
+        for row_idx, row in enumerate(metadata.itertuples()):
+            tgt_path = create_filename(session_or_sign=row.gloss,
+                                       person=row.consultant,
+                                       scene=row.scene,
+                                       dir=output_dir,
+                                       ext="json")
+            log_progress(row_idx + 1, total, f"{filename(tgt_path)} ")
 
-            if not exists(tgt_filepath):
+            if exists(tgt_path):
+                log("    SKIPPED")
+            else:
                 # Get valid camera files:
-                camera_files = get_camera_files_if_all_matched(
-                    session_or_sign=label,
-                    person=consultant,
-                    scene=scene,
+                camera_files = get_camera_dirs_if_all_matched(
+                    session_or_sign=row.label,
+                    person=row.consultant,
+                    scene=row.scene,
                     cameras=cameras,
                     dir=input_dir)
 
                 # Get properties:
-                properties = self.get_properties(label, scene, cameras,
-                                                 consultant, files_properties)
+                properties = self.get_properties(row, cameras)
 
-                try:                    
+                try:
                     create_if_missing(snippets_dir)
 
                     # Estimate skeletons/snippets:
@@ -89,7 +80,7 @@ class Skeletor(Processor):
                     data = self.pack_snippets(cam_snippets, properties, mode)
 
                     # Save data:
-                    save_json(data, tgt_filepath)
+                    save_json(data, tgt_path)
                 except Exception as e:
                     log_err(f"   FAILED ({str(e)})", ex=e)
                 finally:
@@ -109,21 +100,33 @@ class Skeletor(Processor):
             len(distinct_items)) if self.is_debug() else len(distinct_items)
         return islice(distinct_items, nrows), nrows
 
-    def get_properties(self, label, scene, cameras, consultant,
-                       files_properties):
-        properties_name = create_video_name(label, scene, cameras[0],
-                                            consultant)
-        return files_properties[filename(properties_name)]
+    def get_properties(self, row, cameras):
+        return {
+            "label": row.label,
+            "gloss": row.gloss,
+            "consultant": row.consultant,
+            "session": row.session,
+            "scene": row.scene,
+            "cameras": cameras,
+            "frame_start": row.frame_start,
+            "frame_end": row.frame_end,
+            "handshape_dh_start": row.d_start_hs,
+            "handshape_dh_end": row.d_end_hs,
+            "handshape_ndh_start": row.nd_start_hs,
+            "handshape_ndh_end": row.nd_end_hs,
+            "passive_arm": row.passive_arm,
+            "fps": "",  # TODO: fill
+        }
 
-    def estimate_snippets(self, camera_files, snippets_dir):
+    def estimate_snippets(self, camera_dirs, snippets_dir):
         cam_snippets = dict()
 
         # Estimate skeletons for all the cameras:
-        for cam, file in camera_files.items():
-            log(f"   Estimating from '{filename(file)}' (camera {cam})...")
-            self.run_openpose(file, snippets_dir)
+        for cam, dir in camera_dirs.items():
+            log(f"   Camera {cam}...")
+            self.run_openpose(dir, snippets_dir)
 
-            file_basename = filename(file, False)
+            file_basename = filename(dir, False)
             file_snippets = sorted(
                 filter_files(snippets_dir,
                              name=f"{file_basename}*",
@@ -133,10 +136,10 @@ class Skeletor(Processor):
                     0), "Could not locate estimated snippet files"
         return cam_snippets
 
-    def run_openpose(self, video_path, snippets_dir):
+    def run_openpose(self, dir, snippets_dir):
         command = self.openpose
         args = {
-            '--video': video_path,
+            '--image_dir': dir,
             '--write_json': snippets_dir,
             '--display': 0,
             '--render_pose': 0,
@@ -147,9 +150,9 @@ class Skeletor(Processor):
             args['--face'] = ''
             args['--hand'] = ''
 
-        success, err = execute_command(command, args)
+        success, _, e = execute_command(command, args)
         if not success:
-            raise Exception(err)
+            raise e
 
     def pack_snippets(self, cams_snippets, properties, mode="2d"):
         assert (mode is not None), "`Mode` must be informed"

@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 from commons.log import log, log_err, log_progress
 from commons.util import exists, filename
-from commons.util.io_util import (delete_file, filter_files,
+from commons.util.io_util import (delete_file,
                                   read_json, save_json)
 from constant import PARTS_OPENPOSE_MAPPING
-from utils import create_json_name
+from utils import create_filename
 
 from .processor import Processor
 
@@ -17,41 +17,41 @@ class Normalizer(Processor):
     def __init__(self, args=None):
         super().__init__('normalize', args)
 
-    def start(self):
-        skeleton_files = filter_files(self.input_dir, ext="json")
+    def run(self, metadata):
+        if not metadata.empty:
+            self.process_normalization(
+                metadata, self.input_dir, self.output_dir)
 
-        if not skeleton_files:
-            log("Nothing to normalize.", 1)
-        else:
-            # video processing:
-            log(f"Source directory: '{self.input_dir}'", 1)
-            log(f"Normalizing skeletons to '{self.output_dir}'...", 1)
-            total = len(skeleton_files)
+    def process_normalization(self, metadata, input_dir, output_dir):
+        total = len(metadata.index)
 
-            for idx, file in enumerate(skeleton_files):
-                log_progress(idx + 1, total, filename(file))
-                data = read_json(file)
-                tgt_filepath = create_json_name(session_or_sign=data["label"],
-                                                person=data["consultant"],
-                                                scene=data["scene"],
-                                                dir=self.output_dir)
+        for row_idx, row in enumerate(metadata.itertuples()):
+            src_path = create_filename(session_or_sign=row.label,
+                                       person=row.consultant,
+                                       scene=row.scene,
+                                       dir=input_dir,
+                                       ext="json")
+            tgt_path = create_filename(session_or_sign=row.label,
+                                       person=row.consultant,
+                                       scene=row.scene,
+                                       dir=output_dir,
+                                       ext="json")
 
-                if not exists(tgt_filepath):
-                    try:
-                        # Normalize and save data:
-                        data = self.normalize_data(data)
-                        save_json(data, tgt_filepath)
-                    except Exception as e:
-                        log_err(f"   FAILED ({str(e)})", ex=e)
-                        delete_file(tgt_filepath)
+            log_progress(row_idx + 1, total, filename(src_path))
 
-            log("Normalization complete.", 1)
+            if not exists(src_path) or exists(tgt_path):
+                log("    SKIPPED")
+            else:
+                data = read_json(src_path)
 
-    def normalize_data(self, data):
-        # Normalize frames:
-        data["frames"] = [self.normalize_frame(
-            frame) for frame in data["frames"]]
-        return data
+                try:
+                    # Normalize and save data:
+                    data["frames"] = [self.normalize_frame(
+                        frame) for frame in data["frames"]]
+                    save_json(data, tgt_path)
+                except Exception as e:
+                    log_err(f"   FAILED ({str(e)})", ex=e)
+                    delete_file(tgt_path)
 
     def normalize_frame(self, frame):
         ref_distance = self.get_ref_distance(frame)
@@ -66,7 +66,8 @@ class Normalizer(Processor):
 
     def get_ref_distance(self, frame):
         """
-        Calculate distance of reference, based on the distance between shoulders.
+        Calculate distance of reference, based on the distance between
+        shoulders.
         """
         from commons.model import Coordinate
 
@@ -84,7 +85,7 @@ class Normalizer(Processor):
             body["score"][idx_neck],
             name="neck")
         if neck.is_zero():
-            raise Exception("Could not find `neck` for normalizing skeleton.")    
+            raise Exception("Could not find `neck` for normalizing skeleton.")
 
         # Find a valid shoulder:
         left_shoulder = Coordinate(
@@ -104,7 +105,8 @@ class Normalizer(Processor):
         elif not right_shoulder.is_zero():
             shoulder = right_shoulder
         else:
-            raise Exception("Could not find a `shoulder` for normalizing skeleton.")
+            raise Exception(
+                "Could not find a `shoulder` for normalizing skeleton.")
 
         # Calculate distance:
         return neck.dist_to(shoulder)

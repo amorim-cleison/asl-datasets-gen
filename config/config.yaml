@@ -1,39 +1,38 @@
 work_dir:   /home/student/dl2/grp5/cca5/dataset/workdir
-metadata_file:  /home/student/dl2/grp5/cca5/dataset/dai-asllvd.xlsx
-metadata_url: http://www.bu.edu/asllrp/dai-asllvd-BU_glossing_with_variations_HS_information-extended-urls-RU.xlsx
-clean_workdir: False
 debug: True
 mode: 3d
-
 phases: 
-  # download, 
+  download, 
   segment, 
-  # skeleton,
-  # normalize
+  skeleton,
+  normalize
+
+metadata:
+  debug_items: 2
+  path:  /home/student/dl2/grp5/cca5/dataset/dai-asllvd.xlsx
+  download_url: http://www.bu.edu/asllrp/dai-asllvd-BU_glossing_with_variations_HS_information-extended-urls-RU.xlsx
 
 download:
-  output_dir: ../../original
-  url: http://csr.bu.edu/ftp/asl/asllvd/asl-data2/quicktime/{session}/scene{scene}-camera{camera}.mov
+  delete_on_finish: false
+  output_dir: ./download
+  url: http://csr.bu.edu/ftp/asl/asllvd/asl-data2/{session}/scene{scene}-camera{camera}.vid
 
 segment:
-  input_dir: ../../original
+  delete_on_finish: false
+  input_dir: ./download
   output_dir: ./segmented
+  vidreader_path: ./3rd_party/windows/vidReader.exe
   fps_in: 60
-  fps_out: 30
+  fps_out: 3
 
 skeleton:
+  delete_on_finish: false
   input_dir: ./segmented
   output_dir: ./skeleton
-  # openpose:   /home/student/dl2/grp5/cca5/openpose/openpose/build/examples/openpose/openpose.bin
-  # model_path: ./st-gcn/models
-  openpose_path:   D:\\openpose\\bin\\OpenPoseDemo.exe
+  openpose_path: D:\\openpose\\bin\\OpenPoseDemo.exe
   models_dir: D:\\openpose\\models
 
 normalize:
+  delete_on_finish: false
   input_dir: ./skeleton
   output_dir: ./normalized
-
-debug_opts:
-  download_items: 2
-  segment_items: 5
-  skeleton_items: 5
