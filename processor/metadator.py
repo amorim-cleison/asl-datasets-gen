@@ -105,9 +105,11 @@ class Metadator(Processor):
             assert (source_url is not None
                     ), "Metadata file is missing; this, URL must be informed."
             tmp_path = normpath(f"{tempfile.gettempdir()}/metadata.partial")
-            success, _ = download_file(source_url, tmp_path)
+            success, e = download_file(source_url, tmp_path)
 
             if success:
                 shutil.move(tmp_path, path)
                 metadata_ok = True
+            else:
+                self.log_failed(e)
         return metadata_ok
