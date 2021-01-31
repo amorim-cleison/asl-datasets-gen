@@ -21,9 +21,9 @@ poetry install
 ```
 
 
-## Preprocessing
+## Execution
 
-To preprocess ASLLVD dataset, run
+To execute this code, run
 ```
 python main.py preprocessing -c config/config.yaml [--work_dir <work folder>]
 ```
