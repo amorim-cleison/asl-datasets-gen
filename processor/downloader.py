@@ -4,7 +4,7 @@ import tempfile
 from itertools import product
 
 from commons.log import log, log_progress
-from commons.util import download_file, exists, extension, filename
+from commons.util import download_file, extension, filename
 from utils import create_filename
 
 from .processor import Processor

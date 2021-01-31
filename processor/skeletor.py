@@ -2,7 +2,7 @@
 import copy
 import tempfile
 
-from commons.log import log, log_err, log_progress
+from commons.log import log, log_progress
 from commons.util import (create_if_missing, delete_dir, execute_command,
                           exists, filename, filter_files, normpath, read_json,
                           save_json)

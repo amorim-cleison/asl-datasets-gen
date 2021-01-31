@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from commons.log import log, log_err, log_progress
+from commons.log import log_progress
 from commons.util import exists, filename
 from commons.util.io_util import (delete_file,
                                   read_json, save_json)

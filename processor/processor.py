@@ -86,4 +86,4 @@ class Processor:
             for f in new_files:
                 del_path = self.__get_del_path(f)
                 save_items([], del_path)
-                # delete_file(f)
+                delete_file(f)

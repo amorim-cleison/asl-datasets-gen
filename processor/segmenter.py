@@ -2,7 +2,7 @@
 import shutil
 import tempfile
 
-from commons.log import log, log_progress, log_err
+from commons.log import log, log_progress
 from commons.util import (create_if_missing, delete_dir,
                           exists, normpath, filename, execute_command)
 from utils import (get_camera_files_if_all_matched, create_filename)
