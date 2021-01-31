@@ -20,17 +20,12 @@ To setup project dependencies, run:
 poetry install
 ```
 
-## Additional Requirements
-To execute video segmentation, this project requires `ffmpeg` to be installed in your Operational System:
-```
-sudo apt-get install ffmpeg
-```
 
 ## Preprocessing
 
 To preprocess ASLLVD dataset, run
 ```
-python main.py preprocessing -c config/preproc-27.yaml [--work_dir <work folder>]
+python main.py preprocessing -c config/config.yaml [--work_dir <work folder>]
 ```
 The training results, configurations and logging files, will be saved under the ```./work_dir``` by default or ```<work folder>``` if you appoint it.
 
