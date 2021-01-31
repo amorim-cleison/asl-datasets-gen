@@ -7,6 +7,7 @@ ARGUMENTS = [
     Argument('-w', '--work_dir', type=str,
              required=True, help='Working directory'),
     Argument('-d', '--debug', type=bool, help='Debug flag'),
+    Argument('-f', '--fps_out', type=int, help='Output frames per second'),
     Argument('-m', '--mode', options=["2d", "3d"], default="2d",
              help='Extraction mode'),
     Argument('-ph', '--phases', type=list, help='Phases of pipeline'),
@@ -32,9 +33,6 @@ def run(args):
     workdir = args.work_dir
     create_if_missing(workdir)
 
-    # Select phases:
-    phases = {n: p for n, p in PHASES.items() if n in args.phases}
-
     # Load metadata:
     metadata = load_metadata(args)
     metadata = metadata.groupby(["session", "scene"])
@@ -47,19 +45,56 @@ def run(args):
     # Every .vid file requires at least 1GB of disk space, and here we dispose
     # them as soon as we finish the process of the stage.
     for idx, ((session, scene), rows) in enumerate(metadata):
+        # Retrieve progress:
+        _, group_phases = load_group_progress(workdir, session, scene)
         print_group(idx, total, session, scene)
 
         # Run pipeline:
-        for name, phase in phases.items():
+        for name, phase in group_phases.items():
             processor = phase(args)
             print_phase(name, processor)
             processor.run(rows)
 
+            # Update progress:
+            append_group_progress(workdir, session, scene, name)
+
             # Delete the output of the last phase, if enabled:
             if last_processor:
-                last_processor.delete_output_if_disposable()
+                last_processor.delete_output_if_enabled()
             last_processor = processor
     log("\nDONE", 1)
+
+
+def load_group_progress(workdir, session, scene):
+    from commons.util import normpath, read_json, exists
+
+    # Load progress:
+    path = normpath(f"{workdir}/progress.json")
+    progress = read_json(path) if exists(path) else dict()
+
+    # Retrieve group details:
+    group_key = f"{session}-{scene}"
+    group_progress = progress[group_key] if (group_key in progress) else list()
+    group_phases = {n: p for n, p in PHASES.items() if (
+        n in args.phases) and (n not in group_progress)}
+    return group_progress, group_phases
+
+
+def append_group_progress(workdir, session, scene, new_phase):
+    from commons.util import normpath, read_json, exists, save_json
+
+    # Load current progress:
+    path = normpath(f"{workdir}/progress.json")
+    progress = read_json(path) if exists(path) else dict()
+
+    # Update group progress:
+    group_key = f"{session}-{scene}"
+    group_progress = progress[group_key] if (group_key in progress) else list()
+    group_progress.append(new_phase)
+
+    # Save progress:
+    progress[group_key] = group_progress
+    save_json(progress, path)
 
 
 def load_metadata(args):
@@ -77,7 +112,7 @@ def print_group(idx, total, session, scene):
 
 
 def print_phase(name, processor):
-    log(name.upper(), 1)
+    log(f"-> {name.capitalize()}", 1)
 
 
 def print_processing():

@@ -1,6 +1,7 @@
 work_dir:   /home/student/dl2/grp5/cca5/dataset/workdir
 debug: True
 mode: 3d
+fps_out: 3
 phases: 
   download, 
   segment, 
@@ -8,7 +9,7 @@ phases:
   normalize
 
 metadata:
-  debug_items: 2
+  debug_items: 10
   path:  /home/student/dl2/grp5/cca5/dataset/dai-asllvd.xlsx
   download_url: http://www.bu.edu/asllrp/dai-asllvd-BU_glossing_with_variations_HS_information-extended-urls-RU.xlsx
 
@@ -23,7 +24,6 @@ segment:
   output_dir: ./segmented
   vidreader_path: ./3rd_party/windows/vidReader.exe
   fps_in: 60
-  fps_out: 3
 
 skeleton:
   delete_on_finish: false

@@ -26,12 +26,12 @@ class Skeletor(Processor):
 
         # OpenPose executable file:
         self.openpose = self.get_arg("openpose_path")
-        assert exists(
-            self.openpose), "Path to OpenPose executable is not valid."
+        # assert exists(
+        #     self.openpose), "Path to OpenPose executable is not valid."
 
         # OpenPose models directory:
         self.model_path = normpath(self.get_arg("models_dir"))
-        assert exists(self.model_path), "Path to OpenPose model is not valid."
+        assert exists(self.model_path), "Path to OpenPose models is not valid."
 
     def run(self, metadata):
         tempdir = tempfile.gettempdir()
@@ -66,25 +66,26 @@ class Skeletor(Processor):
                     cameras=cameras,
                     dir=input_dir)
 
-                # Get properties:
-                properties = self.get_properties(row, cameras)
+                if camera_files:
+                    # Get properties:
+                    properties = self.get_properties(row, cameras)
 
-                try:
-                    create_if_missing(snippets_dir)
+                    try:
+                        create_if_missing(snippets_dir)
 
-                    # Estimate skeletons/snippets:
-                    cam_snippets = self.estimate_snippets(
-                        camera_files, snippets_dir)
+                        # Estimate skeletons/snippets:
+                        cam_snippets = self.estimate_snippets(
+                            camera_files, snippets_dir)
 
-                    # Pack snippets into single data:
-                    data = self.pack_snippets(cam_snippets, properties, mode)
+                        # Pack snippets into single data:
+                        data = self.pack_snippets(cam_snippets, properties, mode)
 
-                    # Save data:
-                    save_json(data, tgt_path)
-                except Exception as e:
-                    log_err(f"   FAILED ({str(e)})", ex=e)
-                finally:
-                    delete_dir(snippets_dir)
+                        # Save data:
+                        save_json(data, tgt_path)
+                    except Exception as e:
+                        log_err(f"   FAILED ({str(e)})", ex=e)
+                    finally:
+                        delete_dir(snippets_dir)
 
     def get_distinct_items(self, files_properties):
         from itertools import islice
@@ -115,7 +116,7 @@ class Skeletor(Processor):
             "handshape_ndh_start": row.nd_start_hs,
             "handshape_ndh_end": row.nd_end_hs,
             "passive_arm": row.passive_arm,
-            "fps": "",  # TODO: fill
+            "fps": self.get_arg("fps_out")
         }
 
     def estimate_snippets(self, camera_dirs, snippets_dir):
