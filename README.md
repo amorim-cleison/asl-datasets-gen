@@ -21,7 +21,7 @@ poetry install
 ```
 
 
-## Preprocessing
+## Executing
 
 To preprocess ASLLVD dataset, run
 ```
