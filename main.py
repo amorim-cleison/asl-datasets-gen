@@ -69,7 +69,7 @@ def load_group_progress(workdir, session, scene):
     from commons.util import normpath, read_json, exists
 
     # Load progress:
-    path = normpath(f"{workdir}/progress.json")
+    path = normpath(f"{workdir}/progress")
     progress = read_json(path) if exists(path) else dict()
 
     # Retrieve group details:
@@ -84,7 +84,7 @@ def append_group_progress(workdir, session, scene, new_phase):
     from commons.util import normpath, read_json, exists, save_json
 
     # Load current progress:
-    path = normpath(f"{workdir}/progress.json")
+    path = normpath(f"{workdir}/progress")
     progress = read_json(path) if exists(path) else dict()
 
     # Update group progress:
