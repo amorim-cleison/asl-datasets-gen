@@ -22,7 +22,7 @@ class Processor:
         # Save args:
         self.session_file = normpath(f"{self.work_dir}/config.yaml")
         if not exists(self.session_file):
-            save_args(self.args, self.session_file)
+            save_args(args, self.session_file)
 
         # Directories:
         self.input_dir = self.__try_get_as_path("input_dir")
