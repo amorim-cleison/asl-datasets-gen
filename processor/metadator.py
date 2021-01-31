@@ -96,11 +96,18 @@ class Metadator(Processor):
 
     def __ensure_metadata(self, path, source_url):
         from commons.util import exists, download_file
+        import shutil
+        import tempfile
 
         if exists(path):
             metadata_ok = True
         else:
             assert (source_url is not None
                     ), "Metadata file is missing; this, URL must be informed."
-            metadata_ok = download_file(source_url, path)
+            tmp_path = normpath(f"{tempfile.gettempdir()}/metadata.partial")
+            success, _ = download_file(source_url, tmp_path)
+
+            if success:
+                shutil.move(tmp_path, path)
+                metadata_ok = True
         return metadata_ok
