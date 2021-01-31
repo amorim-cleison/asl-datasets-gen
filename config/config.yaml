@@ -9,7 +9,7 @@ phases:
   normalize
 
 metadata:
-  debug_items: 10
+  debug_items: 2
   path:  /home/student/dl2/grp5/cca5/dataset/dai-asllvd.xlsx
   download_url: http://www.bu.edu/asllrp/dai-asllvd-BU_glossing_with_variations_HS_information-extended-urls-RU.xlsx
 
