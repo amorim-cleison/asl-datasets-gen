@@ -55,8 +55,8 @@ class Skeletor(Processor):
                                        ext="json")
             log_progress(row_idx + 1, total, f"{filename(tgt_path)} ")
 
-            if exists(tgt_path):
-                log("    SKIPPED")
+            if self.output_exists(tgt_path):
+                self.log_skipped()
             else:
                 # Get valid camera files:
                 camera_files = get_camera_dirs_if_all_matched(
@@ -78,12 +78,13 @@ class Skeletor(Processor):
                             camera_files, snippets_dir)
 
                         # Pack snippets into single data:
-                        data = self.pack_snippets(cam_snippets, properties, mode)
+                        data = self.pack_snippets(
+                            cam_snippets, properties, mode)
 
                         # Save data:
                         save_json(data, tgt_path)
                     except Exception as e:
-                        log_err(f"   FAILED ({str(e)})", ex=e)
+                        self.log_failed(e)
                     finally:
                         delete_dir(snippets_dir)
 

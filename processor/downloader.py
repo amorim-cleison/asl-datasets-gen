@@ -44,8 +44,8 @@ class Downloader(Processor):
                                            ext=ext)
                 log_progress(idx + 1, total, filename(tgt_file))
 
-                if exists(tgt_file):
-                    log("    SKIPPED")
+                if self.output_exists(tgt_file):
+                    self.log_skipped()
                 else:
                     # Download file:
                     src_url = self.create_source_url(url,
@@ -59,13 +59,13 @@ class Downloader(Processor):
                                                ext=ext)
 
                     log(f"    Downloading '{src_url}'...", 2)
-                    success, err = download_file(src_url, tmp_file)
+                    success, e = download_file(src_url, tmp_file)
 
                     if success:
                         # Save file to directory:
                         shutil.move(tmp_file, tgt_file)
                     else:
-                        log(f"    FAILED ({err})", 2)
+                        self.log_failed(e)
 
     def create_source_url(self, url, session, scene, camera):
         return url.format(session=session, scene=int(scene), camera=camera)

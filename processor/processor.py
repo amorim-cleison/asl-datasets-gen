@@ -1,5 +1,6 @@
-from commons.util import (create_if_missing, delete_dir, exists, normpath,
+from commons.util import (create_if_missing, exists, normpath,
                           save_args)
+from commons.log import log, log_err
 
 from utils import ArgsReader
 
@@ -60,6 +61,29 @@ class Processor:
     def run(self, metadata):
         pass
 
+    def log_skipped(self):
+        log("    Skipped")
+
+    def log_failed(self, e):
+        log_err(f"   FAILED ({str(e)})", ex=e)
+
+    def __get_del_path(self, path):
+        path = normpath(path, path_as_str=False)
+        return normpath(f"{path.parent}/{path.stem}.del")
+
+    def output_exists(self, path):
+        del_path = self.__get_del_path(path)
+        return exists(path) or exists(del_path)
+
     def delete_output_if_enabled(self):
+        from commons.util import filter_files, save_items, delete_file
+
         if self.delete_on_finish and self.output_dir:
-            delete_dir(self.output_dir)
+            all_files = filter_files(self.output_dir)
+            del_files = filter_files(self.output_dir, ext="del")
+            new_files = all_files - del_files
+
+            for f in new_files:
+                del_path = self.__get_del_path(f)
+                save_items([], del_path)
+                # delete_file(f)

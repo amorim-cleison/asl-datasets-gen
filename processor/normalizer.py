@@ -39,8 +39,8 @@ class Normalizer(Processor):
 
             log_progress(row_idx + 1, total, filename(src_path))
 
-            if not exists(src_path) or exists(tgt_path):
-                log("    SKIPPED")
+            if not exists(src_path) or self.output_exists(tgt_path):
+                self.log_skipped()
             else:
                 data = read_json(src_path)
 
@@ -50,7 +50,7 @@ class Normalizer(Processor):
                         frame) for frame in data["frames"]]
                     save_json(data, tgt_path)
                 except Exception as e:
-                    log_err(f"   FAILED ({str(e)})", ex=e)
+                    self.log_failed(e)
                     delete_file(tgt_path)
 
     def normalize_frame(self, frame):

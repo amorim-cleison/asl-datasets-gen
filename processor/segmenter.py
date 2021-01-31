@@ -47,8 +47,8 @@ class Segmenter(Processor):
                              total, f"{filename(tgt_path)} ")
 
                 # Splits only if the file is not already present:
-                if exists(tgt_path):
-                    log("    SKIPPED")
+                if self.output_exists(tgt_path):
+                    self.log_skipped()
                 else:
                     tmp_path = create_filename(session_or_sign=row.label,
                                                person=row.consultant,
@@ -71,7 +71,7 @@ class Segmenter(Processor):
                         # Save file to target directory:
                         shutil.move(tmp_path, tgt_path)
                     except Exception as e:
-                        log_err(f"   FAILED ({str(e)})", ex=e)
+                        self.log_failed(e)
                         delete_dir(tmp_path)
 
     def split_video(self, input_file, output_path, prefix, start, end, fps_in,
