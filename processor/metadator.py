@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import pandas as pd
 from commons.log import log_progress_bar
-from commons.util import is_empty
+from commons.util import is_empty, normpath
 
 from .processor import Processor
 
@@ -19,7 +19,7 @@ class Metadator(Processor):
             "debug_items") if self.is_debug() else None
 
         # Load metadata:
-        path = self.get_arg("path")
+        path = normpath(self.get_arg("path"))
         download_url = self.get_arg("download_url")
         columns = [
             'Main New Gloss', 'Consultant', 'D Start HS', 'N-D Start HS',
@@ -96,6 +96,7 @@ class Metadator(Processor):
 
     def __ensure_metadata(self, path, source_url):
         from commons.util import exists, download_file
+
         if exists(path):
             metadata_ok = True
         else:

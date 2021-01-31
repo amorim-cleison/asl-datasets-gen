@@ -112,7 +112,10 @@ def print_group(idx, total, session, scene):
 
 
 def print_phase(name, processor):
-    log(f"-> {name.capitalize()}", 1)
+    log("", 1)
+    # log("-" * 60, 1)
+    log(f"{name.capitalize()}", 1)
+    log("-" * 60, 1)
 
 
 def print_processing():

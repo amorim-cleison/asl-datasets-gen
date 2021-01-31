@@ -124,7 +124,7 @@ class Skeletor(Processor):
 
         # Estimate skeletons for all the cameras:
         for cam, dir in camera_dirs.items():
-            log(f"   Camera {cam}...")
+            log(f"   Estimating camera {cam}...")
             self.run_openpose(dir, snippets_dir)
 
             file_basename = filename(dir, False)

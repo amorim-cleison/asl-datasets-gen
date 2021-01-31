@@ -59,8 +59,7 @@ class Segmenter(Processor):
                     prefix = filename(tmp_path)
 
                     log(f"    Segmenting frames "
-                        f"[{row.frame_start:.0f} ~ {row.frame_end:.0f}] "
-                        f"from '{filename(file)}'...", 2)
+                        f"[{row.frame_start:.0f} ~ {row.frame_end:.0f}] ", 2)
 
                     try:
                         # Split file in temporary diretory:
