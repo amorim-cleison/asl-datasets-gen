@@ -19,7 +19,7 @@ download:
 
 segment:
   delete_on_finish: True
-  input_dir: ../original
+  input_dir: ./download
   output_dir: ./segmented
   vidreader_path: ~/repos/asllvd-vid-reader/bin/vidReader.exe
   fps_in: 60
