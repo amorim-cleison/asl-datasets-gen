@@ -57,7 +57,7 @@ PyYAML = "^5.3.1"
 type = "git"
 url = "https://github.com/amorim-cleison/commons-python.git"
 reference = "develop"
-resolved_reference = "43cf3177d9ebb4eb5abe4d1beec3c7d434b388fb"
+resolved_reference = "7eee1104d643bf2426196047707b3a172cf8af9d"
 
 [[package]]
 name = "flake8"
