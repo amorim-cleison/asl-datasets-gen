@@ -59,7 +59,7 @@ class Downloader(Processor):
                                                ext=ext)
 
                     log(f"    Downloading '{src_url}'...", 2)
-                    success, e = download_file(src_url, tmp_file)
+                    success, e = download_file(src_url, tmp_file, True)
 
                     if success:
                         # Save file to directory:

@@ -1,5 +1,5 @@
 work_dir:   /home/student/dl2/grp5/cca5/dataset/workdir
-debug: False
+debug: True
 mode: 3d
 fps_out: 3
 phases: 
