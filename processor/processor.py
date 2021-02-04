@@ -79,8 +79,8 @@ class Processor:
         from commons.util import filter_files, save_items, delete_file
 
         if self.delete_on_finish and self.output_dir:
-            all_files = filter_files(self.output_dir)
-            del_files = filter_files(self.output_dir, ext="del")
+            all_files = set(filter_files(self.output_dir))
+            del_files = set(filter_files(self.output_dir, ext="del"))
             new_files = all_files - del_files
 
             for f in new_files:

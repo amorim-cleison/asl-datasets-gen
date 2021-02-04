@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import pandas as pd
-from commons.log import log_progress_bar, log, log_progress
+from commons.log import log_progress_bar, log, log_progress, auto_log_progress
 from commons.util import is_empty, normpath
 
 from .processor import Processor
@@ -37,10 +37,7 @@ class Metadator(Processor):
         total = len(metadata.index)
         last_gloss = None
 
-        for row_idx, row in enumerate(metadata.itertuples()):
-            # log_progress_bar(row_idx + 1, total)
-            log_progress(row_idx + 1, total, "")
-
+        for row_idx, row in auto_log_progress(enumerate(metadata.itertuples()), total=total):
             gloss = row.Main_New_Gloss if not is_empty(
                 row.Main_New_Gloss) else last_gloss
             last_gloss = gloss
