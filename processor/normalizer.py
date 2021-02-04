@@ -17,15 +17,15 @@ class Normalizer(Processor):
     def __init__(self, args=None):
         super().__init__('normalize', args)
 
-    def run(self, metadata):
-        if not metadata.empty:
+    def run(self, group, rows):
+        if not rows.empty:
             self.process_normalization(
-                metadata, self.input_dir, self.output_dir)
+                rows, self.input_dir, self.output_dir)
 
-    def process_normalization(self, metadata, input_dir, output_dir):
-        total = len(metadata.index)
+    def process_normalization(self, rows, input_dir, output_dir):
+        total = len(rows.index)
 
-        for row_idx, row in enumerate(metadata.itertuples()):
+        for row_idx, row in enumerate(rows.itertuples()):
             src_path = create_filename(session_or_sign=row.label,
                                        person=row.consultant,
                                        scene=row.scene,

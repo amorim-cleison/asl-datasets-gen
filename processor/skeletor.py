@@ -33,21 +33,21 @@ class Skeletor(Processor):
         self.model_path = normpath(self.get_arg("models_dir"))
         assert exists(self.model_path), "Path to OpenPose models is not valid."
 
-    def run(self, metadata):
+    def run(self, group, rows):
         tempdir = tempfile.gettempdir()
         snippets_dir = normpath(f"{tempdir}/snippets")
         create_if_missing(snippets_dir)
 
-        if not metadata.empty:
-            self.process_videos(metadata, self.input_dir, snippets_dir,
+        if not rows.empty:
+            self.process_videos(rows, self.input_dir, snippets_dir,
                                 self.output_dir,
                                 self.get_cameras(), self.mode)
 
-    def process_videos(self, metadata, input_dir, snippets_dir, output_dir,
+    def process_videos(self, rows, input_dir, snippets_dir, output_dir,
                        cameras, mode):
-        total = len(metadata.index)
+        total = len(rows.index)
 
-        for row_idx, row in enumerate(metadata.itertuples()):
+        for row_idx, row in enumerate(rows.itertuples()):
             tgt_path = create_filename(session_or_sign=row.gloss,
                                        person=row.consultant,
                                        scene=row.scene,

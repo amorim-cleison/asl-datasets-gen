@@ -19,26 +19,26 @@ class Downloader(Processor):
         super().__init__('download', args)
         self.url = self.get_arg("url")
 
-    def run(self, metadata):
+    def run(self, group, rows):
         """
         Example: http://csr.bu.edu/ftp/asl/asllvd/asl-data2/quicktime/
         <session>/scene<scene#>-camera<camera#>.mov
         """
-        if not metadata.empty:
-            self.download_files_in_metadata(metadata, self.url,
+        if group:
+            self.download_files_in_metadata(group, self.url,
                                             self.get_cameras(),
                                             self.output_dir)
 
-    def download_files_in_metadata(self, metadata, url, cameras, output_dir):
+    def download_files_in_metadata(self, group, url, cameras, output_dir):
         tempdir = tempfile.gettempdir()
-        files = product(metadata.itertuples(), cameras)
+        files = product([group], cameras)
         ext = extension(url)
-        total = len(metadata.index) * len(cameras)
+        total = len(cameras)
 
-        for idx, (row, cam) in enumerate(files):
-            if row.session and row.scene:
-                tgt_file = create_filename(session_or_sign=row.session,
-                                           scene=row.scene,
+        for idx, ((session, scene), cam) in enumerate(files):
+            if session and scene:
+                tgt_file = create_filename(session_or_sign=session,
+                                           scene=scene,
                                            camera=cam,
                                            dir=output_dir,
                                            ext=ext)
@@ -49,11 +49,11 @@ class Downloader(Processor):
                 else:
                     # Download file:
                     src_url = self.create_source_url(url,
-                                                     session=row.session,
-                                                     scene=row.scene,
+                                                     session=session,
+                                                     scene=scene,
                                                      camera=cam)
-                    tmp_file = create_filename(session_or_sign=row.session,
-                                               scene=row.scene,
+                    tmp_file = create_filename(session_or_sign=session,
+                                               scene=scene,
                                                camera=cam,
                                                dir=tempdir,
                                                ext=ext)

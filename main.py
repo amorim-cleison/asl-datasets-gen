@@ -52,7 +52,7 @@ def run(args):
         for name, phase in phases.items():
             processor = phase(args)
             print_phase(name, processor)
-            processor.run(rows)
+            processor.run((session, scene), rows)
 
             # Delete the output of the last phase, if enabled:
             if last_processor:
