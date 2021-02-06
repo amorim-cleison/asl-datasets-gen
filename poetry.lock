@@ -72,10 +72,8 @@ requests = "^2.25.1"
 tdqm = "^0.0.1"
 
 [package.source]
-type = "git"
-url = "https://github.com/amorim-cleison/commons-python.git"
-reference = "develop"
-resolved_reference = "cc46352f1fa82b2fd55c2f408824a3325952a024"
+type = "directory"
+url = "../commons-python"
 
 [[package]]
 name = "flake8"
@@ -439,7 +437,7 @@ testing = ["pytest (>=3.5,!=3.7.3)", "pytest-checkdocs (>=1.2.3)", "pytest-flake
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "7fd9a6572f2f7c6486821f42fa635ffc34cd5edef2c104ee5f992e8ed6c5245d"
+content-hash = "078198ee27a56ff9811c0a0f2165abb286e2aef3ae8f6558b7e09b499059f28e"
 
 [metadata.files]
 atomicwrites = [
