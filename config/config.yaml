@@ -1,4 +1,4 @@
-work_dir:   /home/student/dl2/grp5/cca5/dataset/workdir
+work_dir:   ~/work/dataset/
 debug: True
 mode: 3d
 fps_out: 3
@@ -10,7 +10,7 @@ phases:
 
 metadata:
   debug_items: 2
-  path:  /home/student/dl2/grp5/cca5/dataset/dai-asllvd.xlsx
+  path:  ~/work/dataset/dai-asllvd.xlsx
   download_url: http://www.bu.edu/asllrp/dai-asllvd-BU_glossing_with_variations_HS_information-extended-urls-RU.xlsx
 
 download:
@@ -22,7 +22,7 @@ segment:
   delete_on_finish: false
   input_dir: ./download
   output_dir: ./segmented
-  vidreader_path: ./3rd_party/windows/vidReader.exe
+  vidreader_path: ../asllvd-vid-reader/bin/vidReader
   fps_in: 60
 
 skeleton:

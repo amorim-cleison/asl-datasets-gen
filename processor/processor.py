@@ -58,7 +58,7 @@ class Processor:
     def get_arg(self, name, default=None):
         return self.args_reader.get_arg(name, default)
 
-    def run(self, metadata):
+    def run(self, group, rows):
         pass
 
     def log_skipped(self):

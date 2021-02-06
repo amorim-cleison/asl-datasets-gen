@@ -21,16 +21,16 @@ class Segmenter(Processor):
         self.fps_out = self.get_arg("fps_out")
         self.vidreader_path = self.get_arg("vidreader_path")
 
-    def run(self, metadata):
-        if not metadata.empty:
-            self.split_videos(metadata, self.input_dir, self.get_cameras(),
+    def run(self, group, rows):
+        if not rows.empty:
+            self.split_videos(rows, self.input_dir, self.get_cameras(),
                               self.output_dir)
 
-    def split_videos(self, metadata, input_dir, cameras, output_dir):
+    def split_videos(self, rows, input_dir, cameras, output_dir):
         tempdir = tempfile.gettempdir()
-        total = len(metadata.index) * len(cameras)
+        total = len(rows.index) * len(cameras)
 
-        for row_idx, row in enumerate(metadata.itertuples()):
+        for row_idx, row in enumerate(rows.itertuples()):
             camera_files = get_camera_files_if_all_matched(
                 session_or_sign=row.session,
                 scene=row.scene,
