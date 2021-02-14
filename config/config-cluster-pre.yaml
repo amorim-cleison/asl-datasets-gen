@@ -15,7 +15,8 @@ metadata:
 download:
   delete_on_finish: True
   output_dir: ./download
-  url: http://csr.bu.edu/ftp/asl/asllvd/asl-data2/{session}/scene{scene}-camera{camera}.vid
+  url: 
+    vid: http://csr.bu.edu/ftp/asl/asllvd/asl-data2/{session}/scene{scene}-camera{camera}.vid
 
 segment:
   delete_on_finish: False

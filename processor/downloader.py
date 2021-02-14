@@ -29,9 +29,10 @@ class Downloader(Processor):
                                             self.get_cameras(),
                                             self.output_dir)
 
-    def download_files_in_metadata(self, group, url, cameras, output_dir):
+    def download_files_in_metadata(self, group, urls, cameras, output_dir):
         tempdir = tempfile.gettempdir()
         files = product([group], cameras)
+        url = urls['vid']
         ext = extension(url)
         total = len(cameras)
 
