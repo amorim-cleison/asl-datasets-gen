@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 from commons.log import log_progress
 from commons.util import exists, filename
-from commons.util.io_util import (delete_file,
+from commons.util.io_util import (delete_file, normpath,
                                   read_json, save_json)
 from constant import PARTS_OPENPOSE_MAPPING
 from utils import create_filename
 
 from .processor import Processor
+
+from itertools import product
 
 
 class Normalizer(Processor):
@@ -16,28 +18,27 @@ class Normalizer(Processor):
 
     def __init__(self, args=None):
         super().__init__('normalize', args)
+        self.mode = self.get_arg("mode")
 
     def run(self, group, rows):
         if not rows.empty:
             self.process_normalization(
-                rows, self.input_dir, self.output_dir)
+                rows, self.mode, self.input_dir, self.output_dir)
 
-    def process_normalization(self, rows, input_dir, output_dir):
-        total = len(rows.index)
+    def process_normalization(self, rows, modes, input_dir, output_dir):
+        rows_modes = product(rows.itertuples(), modes)
+        total = len(rows.index) * len(modes)
 
-        for row_idx, row in enumerate(rows.itertuples()):
-            src_path = create_filename(session_or_sign=row.label,
-                                       person=row.consultant,
-                                       scene=row.scene,
-                                       dir=input_dir,
+        for row_idx, (row, mode) in enumerate(rows_modes):
+            src_path = create_filename(base=row.basename,
+                                       dir=normpath(f"{input_dir}/{mode}"),
                                        ext="json")
-            tgt_path = create_filename(session_or_sign=row.label,
-                                       person=row.consultant,
-                                       scene=row.scene,
-                                       dir=output_dir,
+            tgt_path = create_filename(base=row.basename,
+                                       dir=normpath(
+                                           f"{output_dir}/{mode}"),
                                        ext="json")
 
-            log_progress(row_idx + 1, total, filename(src_path))
+            log_progress(row_idx + 1, total, f"{row.basename} ({mode})")
 
             if not exists(src_path) or self.output_exists(tgt_path):
                 self.log_skipped()
@@ -47,29 +48,41 @@ class Normalizer(Processor):
                 try:
                     # Normalize and save data:
                     data["frames"] = [self.normalize_frame(
-                        frame) for frame in data["frames"]]
+                        frame, mode) for frame in data["frames"]]
                     save_json(data, tgt_path)
                 except Exception as e:
                     self.log_failed(e)
                     delete_file(tgt_path)
 
-    def normalize_frame(self, frame):
-        ref_distance = self.get_ref_distance(frame)
+    COORDS_MODE = {
+        "2d": ["x", "y"],
+        "3d": ["x", "y", "z"]
+    }
+
+    def normalize_frame(self, frame, mode):
+        ref_distance = self.get_ref_distance(frame, mode)
 
         for part in PARTS_OPENPOSE_MAPPING.values():
             if isinstance(frame[part], dict):
-                for coord in ["x", "y", "z"]:
+                for coord in self.COORDS_MODE[mode]:
                     if coord in frame[part]:
                         frame[part][coord] = list(
                             frame[part][coord] / ref_distance)
         return frame
 
-    def get_ref_distance(self, frame):
+    def get_ref_distance(self, frame, mode):
         """
         Calculate distance of reference, based on the distance between
         shoulders.
         """
         from commons.model import Coordinate
+
+        def get_coordinate(part, mode, idx, name):
+            coords = self.COORDS_MODE[mode]
+            x = part["x"][idx] if ("x" in coords) else 0
+            y = part["y"][idx] if ("y" in coords) else 0
+            z = part["z"][idx] if ("z" in coords) else 0
+            return Coordinate(x, y, z, part["score"][idx], name=name)
 
         # Find indexes:
         body = frame["body"]
@@ -78,28 +91,16 @@ class Normalizer(Processor):
         idx_right_shoulder = body["name"].index("shoulder_right")
 
         # Find neck:
-        neck = Coordinate(
-            body["x"][idx_neck],
-            body["y"][idx_neck],
-            body["z"][idx_neck],
-            body["score"][idx_neck],
-            name="neck")
+        neck = get_coordinate(body, mode, idx_neck, "neck")
         if neck.is_zero():
             raise Exception("Could not find `neck` for normalizing skeleton.")
 
         # Find a valid shoulder:
-        left_shoulder = Coordinate(
-            body["x"][idx_left_shoulder],
-            body["y"][idx_left_shoulder],
-            body["z"][idx_left_shoulder],
-            body["score"][idx_left_shoulder],
-            name="left_shoulder")
-        right_shoulder = Coordinate(
-            body["x"][idx_right_shoulder],
-            body["y"][idx_right_shoulder],
-            body["z"][idx_right_shoulder],
-            body["score"][idx_right_shoulder],
-            name="right_shoulder")
+        left_shoulder = get_coordinate(
+            body, mode, idx_left_shoulder, "left_shoulder")
+        right_shoulder = get_coordinate(
+            body, mode, idx_right_shoulder, "right_shoulder")
+
         if not left_shoulder.is_zero():
             shoulder = left_shoulder
         elif not right_shoulder.is_zero():

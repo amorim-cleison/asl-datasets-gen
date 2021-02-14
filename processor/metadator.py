@@ -2,6 +2,7 @@
 import pandas as pd
 from commons.log import log_progress_bar, log, log_progress, auto_log_progress
 from commons.util import is_empty, normpath
+from utils import create_filename, create_uid
 
 from .processor import Processor
 
@@ -36,6 +37,7 @@ class Metadator(Processor):
         all_rows = list()
         total = len(metadata.index)
         last_gloss = None
+        uids = set()
 
         for row_idx, row in auto_log_progress(enumerate(metadata.itertuples()), total=total):
             gloss = row.Main_New_Gloss if not is_empty(
@@ -43,6 +45,16 @@ class Metadator(Processor):
             last_gloss = gloss
 
             if gloss and row.Session and row.Scene:
+                uid = create_uid(gloss, row.Consultant, row.Session,
+                                 row.Scene, row.Start, row.End)
+                basename = create_filename(session_or_sign=gloss, uid=uid)
+
+                # Validate if already exists:
+                if basename in uids:
+                    raise Exception("UID repetido")
+                else:
+                    uids.add(basename)
+
                 new_row = {
                     "label": self.create_label(gloss),
                     "gloss": gloss,
@@ -55,7 +67,8 @@ class Metadator(Processor):
                     "session": row.Session,
                     "scene": int(row.Scene),
                     "frame_start": int(row.Start),
-                    "frame_end": int(row.End)
+                    "frame_end": int(row.End),
+                    "basename": basename
                 }
                 all_rows.append(new_row)
         return pd.DataFrame(all_rows)

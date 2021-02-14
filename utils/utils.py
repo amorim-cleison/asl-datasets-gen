@@ -1,58 +1,72 @@
-from commons.util import (replace_special_chars, filter_files)
+from commons.util import (replace_special_chars, filter_files, exists)
 
 
-def create_filename(session_or_sign,
-                    scene,
+def create_filename(session_or_sign=None,
+                    base=None,
+                    scene=None,
                     ext=None,
                     camera=None,
                     person=None,
+                    uid=None,
                     dir=None):
     from commons.util import normpath
-    assert (session_or_sign is not None), "Session or sign must be informed"
-    assert (scene is not None), "Session must be informed"
+    # assert (session_or_sign is not None), "Session or sign must be informed"
+    # assert (scene is not None), "Session must be informed"
 
     def clean_part(part):
         return replace_special_chars(part, "_").lower()
 
     # Compose parts:
     parts = []
-    parts.append(f"{clean_part(session_or_sign):s}")
+
+    if session_or_sign is not None:
+        parts.append(f"{clean_part(session_or_sign):s}")
+
+    if base is not None:
+        parts.append(f"{base:s}")
+
     if person is not None:
         parts.append(f"{clean_part(person):s}")
-    parts.append(f"scn{scene:03.0f}")
+
+    if scene is not None:
+        parts.append(f"scn{scene:03.0f}")
+
     if camera is not None:
         parts.append(f"cam{camera:02.0f}")
+
+    if uid is not None:
+        parts.append(f"{uid:05.0f}")
 
     # Compose file name:
     video_name = "-".join(parts)
     if ext is not None:
         ext = ext if ext.startswith(".") else f".{ext}"
-        video_name = f"{video_name}{ext}"
+        video_name = f"{video_name}{ext}".lower()
     if dir is not None:
         video_name = normpath(f"{dir}/{video_name}")
-    return video_name.lower()
+    return video_name
 
 
 def get_camera_files_if_all_matched(session_or_sign,
                                     scene,
                                     cameras,
+                                    formats,
                                     person=None,
                                     dir=None):
     """
     Obtain the video files for the cameras, and return only if all camera has
     an equivalent file. Otherwise, returns empty.
     """
-    camera_files = dict()
-
-    for cam in cameras:
-        file = create_filename(session_or_sign=session_or_sign,
-                               scene=int(scene),
-                               camera=cam,
-                               person=person)
-        filtered = filter_files(dir=dir, name=file)
-        if filtered:
-            camera_files[cam] = filtered[0]
-    return camera_files if len(camera_files) == len(cameras) else dict()
+    for fmt in formats:
+        cam_files = {cam: create_filename(session_or_sign=session_or_sign,
+                                          scene=int(scene),
+                                          camera=cam,
+                                          person=person,
+                                          dir=dir,
+                                          ext=fmt) for cam in cameras}
+        if all([exists(file) for file in cam_files.values()]):
+            return cam_files
+    return dict()
 
 
 def get_camera_dirs_if_all_matched(session_or_sign,
@@ -76,3 +90,10 @@ def get_camera_dirs_if_all_matched(session_or_sign,
         if filtered:
             camera_dirs[cam] = _dir
     return camera_dirs if len(camera_dirs) == len(cameras) else dict()
+
+
+def create_uid(*fields):
+    from hashlib import sha1
+    SIZE = 6
+    data = "-".join([str(x) for x in fields])
+    return int(sha1(data.encode("utf-8")).hexdigest(), 16) % (10 ** SIZE)

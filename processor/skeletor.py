@@ -44,18 +44,22 @@ class Skeletor(Processor):
                                 self.get_cameras(), self.mode)
 
     def process_videos(self, rows, input_dir, snippets_dir, output_dir,
-                       cameras, mode):
+                       cameras, modes):
         total = len(rows.index)
 
         for row_idx, row in enumerate(rows.itertuples()):
-            tgt_path = create_filename(session_or_sign=row.gloss,
-                                       person=row.consultant,
-                                       scene=row.scene,
-                                       dir=output_dir,
-                                       ext="json")
-            log_progress(row_idx + 1, total, f"{filename(tgt_path)} ")
+            # Log current:
+            log_progress(row_idx + 1, total, row.basename)
 
-            if self.output_exists(tgt_path):
+            # Create target paths per mode:
+            mode_paths = {mode: create_filename(base=row.basename,
+                                                dir=normpath(
+                                                    f"{output_dir}/{mode}"),
+                                                ext="json") for mode in modes}
+            mode_paths = {mode: path for mode,
+                          path in mode_paths.items() if not self.output_exists(path)}
+
+            if not mode_paths:
                 self.log_skipped()
             else:
                 # Get valid camera files:
@@ -77,12 +81,13 @@ class Skeletor(Processor):
                         cam_snippets = self.estimate_snippets(
                             camera_files, snippets_dir)
 
-                        # Pack snippets into single data:
-                        data = self.pack_snippets(
-                            cam_snippets, properties, mode)
+                        for mode, path in mode_paths.items():
+                            # Pack snippets into single data:
+                            data = self.pack_snippets(
+                                cam_snippets, properties, mode)
 
-                        # Save data:
-                        save_json(data, tgt_path)
+                            # Save data:
+                            save_json(data, path)
                     except Exception as e:
                         self.log_failed(e)
                     finally:
@@ -109,7 +114,7 @@ class Skeletor(Processor):
             "consultant": row.consultant,
             "session": row.session,
             "scene": row.scene,
-            "cameras": cameras,
+            # "cameras": cameras,
             "frame_start": row.frame_start,
             "frame_end": row.frame_end,
             "handshape_dh_start": row.d_start_hs,

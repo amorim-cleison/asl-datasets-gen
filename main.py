@@ -8,7 +8,7 @@ ARGUMENTS = [
              required=True, help='Working directory'),
     Argument('-d', '--debug', type=bool, help='Debug flag'),
     Argument('-f', '--fps_out', type=int, help='Output frames per second'),
-    Argument('-m', '--mode', options=["2d", "3d"], default="2d",
+    Argument('-m', '--mode', options=["2d", "3d"], type=list, default="2d",
              help='Extraction mode'),
     Argument('-ph', '--phases', type=list, help='Phases of pipeline'),
     Argument('-sk', '--skeleton', type=dict, help='Poses configs'),

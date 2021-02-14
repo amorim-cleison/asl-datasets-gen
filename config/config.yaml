@@ -1,6 +1,6 @@
-work_dir:   ~/work/dataset/
-debug: True
-mode: 3d
+work_dir:   ../../work/dataset/
+debug: False
+mode: [2d, 3d]
 fps_out: 3
 phases: 
   download, 
@@ -10,7 +10,7 @@ phases:
 
 metadata:
   debug_items: 2
-  path:  ~/work/dataset/dai-asllvd.xlsx
+  path:  ../../work/dataset/dai-asllvd.xlsx
   download_url: http://www.bu.edu/asllrp/dai-asllvd-BU_glossing_with_variations_HS_information-extended-urls-RU.xlsx
 
 download:
@@ -18,6 +18,7 @@ download:
   output_dir: ./download
   url: 
     vid: http://csr.bu.edu/ftp/asl/asllvd/asl-data2/{session}/scene{scene}-camera{camera}.vid
+    mov: http://csr.bu.edu/ftp/asl/asllvd/asl-data2/quicktime/{session}/scene{scene}-camera{camera}.mov
 
 segment:
   delete_on_finish: false
@@ -30,8 +31,8 @@ skeleton:
   delete_on_finish: false
   input_dir: ./segmented
   output_dir: ./skeleton
-  openpose_path: D:\\openpose\\bin\\OpenPoseDemo.exe
-  models_dir: D:\\openpose\\models
+  openpose_path: ../../openpose/bin/OpenPoseDemo.exe
+  models_dir: ../../openpose/models
 
 normalize:
   delete_on_finish: false

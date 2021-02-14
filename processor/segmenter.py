@@ -15,6 +15,8 @@ class Segmenter(Processor):
         Preprocessor for splitting original videos
     """
 
+    FORMAT_PRIORITIES = ["mov", "vid"]
+
     def __init__(self, args=None):
         super().__init__('segment', args)
         self.fps_in = self.get_arg("fps_in")
@@ -34,25 +36,22 @@ class Segmenter(Processor):
             camera_files = get_camera_files_if_all_matched(
                 session_or_sign=row.session,
                 scene=row.scene,
+                formats=self.FORMAT_PRIORITIES,
                 cameras=cameras,
                 dir=input_dir)
 
             for cam_idx, (cam, file) in enumerate(camera_files.items()):
-                tgt_path = create_filename(session_or_sign=row.label,
-                                           person=row.consultant,
-                                           scene=row.scene,
+                tgt_path = create_filename(base=row.basename,
                                            camera=cam,
                                            dir=output_dir)
                 log_progress((len(cameras) * row_idx) + (cam_idx + 1),
-                             total, f"{filename(tgt_path)} ")
+                             total, f"{row.basename} (cam {cam:02.0f})")
 
                 # Splits only if the file is not already present:
                 if self.output_exists(tgt_path):
                     self.log_skipped()
                 else:
-                    tmp_path = create_filename(session_or_sign=row.label,
-                                               person=row.consultant,
-                                               scene=row.scene,
+                    tmp_path = create_filename(base=row.basename,
                                                camera=cam,
                                                dir=tempdir)
                     create_if_missing(tmp_path)

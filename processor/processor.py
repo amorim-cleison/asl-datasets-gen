@@ -45,12 +45,16 @@ class Processor:
         # 'camera 1': front view
         # 'camera 2': side view
         # 'camera 3': facial close up
-        mode_cameras = {"2d": [1], "3d": [1, 2]}
+        MODE_CAMERAS = {"2d": [1], "3d": [1, 2]}
         mode = self.get_arg("mode")
-        assert (mode is not None) and (
-            mode
-            in mode_cameras), "There is no camera configuration for this mode"
-        return mode_cameras[mode]
+        assert (mode is not None)
+        cameras = list()
+
+        for m in mode:
+            assert (
+                m in MODE_CAMERAS), f"There is no camera configuration for the mode `{m}`"
+            cameras.extend(MODE_CAMERAS[m])
+        return set(cameras)
 
     def is_debug(self):
         return self.get_arg("debug", False)
