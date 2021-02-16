@@ -1,8 +1,6 @@
-from commons.util import (create_if_missing, exists, normpath,
-                          save_args)
 from commons.log import log, log_err
-
-from utils import ArgsReader
+from commons.util import create_if_missing, exists, normpath, save_args
+from utils import ArgsReader, get_cameras
 
 
 class Processor:
@@ -10,11 +8,14 @@ class Processor:
         Base Processor
     """
 
+    MODE_CAMERAS = {"2d": [1], "3d": [1, 2]}
+
     def __init__(self, phase_name, args):
         self.args_reader = ArgsReader(args, phase_name)
         self.phase_name = phase_name
         self.work_dir = normpath(self.get_arg("work_dir"))
         self.delete_on_finish = self.get_arg("delete_on_finish", False)
+        self.modes = self.get_arg("mode")
 
         # Workdir:
         assert (self.work_dir is not None), "Workdir must be informed"
@@ -42,15 +43,7 @@ class Processor:
         return path
 
     def get_cameras(self):
-        # 'camera 1': front view
-        # 'camera 2': side view
-        # 'camera 3': facial close up
-        mode_cameras = {"2d": [1], "3d": [1, 2]}
-        mode = self.get_arg("mode")
-        assert (mode is not None) and (
-            mode
-            in mode_cameras), "There is no camera configuration for this mode"
-        return mode_cameras[mode]
+        return get_cameras(self.modes)
 
     def is_debug(self):
         return self.get_arg("debug", False)
@@ -76,7 +69,7 @@ class Processor:
         return exists(path) or exists(del_path)
 
     def delete_output_if_enabled(self):
-        from commons.util import filter_files, save_items, delete_file
+        from commons.util import delete_file, filter_files, save_items
 
         if self.delete_on_finish and self.output_dir:
             all_files = set(filter_files(self.output_dir))
