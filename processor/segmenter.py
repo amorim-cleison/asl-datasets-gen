@@ -75,7 +75,7 @@ class Segmenter(Processor):
                         self.log_failed(e)
                         delete_dir(tmp_path)
 
-    def split_video(self, input_file, output_dir, fmt, prefix, frame_start,
+    def split_video(self, input_path, output_dir, fmt, prefix, frame_start,
                     frame_end, fps_in, fps_out):
         from math import ceil, floor
 
@@ -92,32 +92,38 @@ class Segmenter(Processor):
         frame_end = int(ceil(frame_end / ROUND_BASE) * ROUND_BASE)
         step = int(fps_in / fps_out)
 
-        for frame in range(frame_start, frame_end, step):
+        for frame in range(frame_start, (frame_end + 1), step):
             fn = FORMAT_SPLIT_FN[fmt]
+            output_path = f"{output_dir}/{prefix}_{frame:05d}.ppm",
             args = {
-                "input_file": input_file,
-                "output_path": f"{output_dir}/{prefix}_{frame:05d}.ppm",
+                "input_path": input_path,
+                "output_path": output_path,
                 "frame": frame
             }
             fn(**args)
 
-    def split_mov(self, input_file, output_path, frame):
-        import cv2
-        cap = cv2.VideoCapture(input_file)
-        cap.set(cv2.CAP_PROP_POS_FRAMES, frame)
-        success, frame = cap.read()
+            if not exists(output_path):
+                raise Exception(f"Failed to segment frame {frame}")
 
-        if not success:
-            raise Exception("OpenCV: Failed to read video frame")
-        cv2.imwrite(output_path, frame)
-        cap.release()
+    def split_mov(self, input_path, output_path, frame):
+        from ffmpy import FFmpeg
+        input_args = {input_path: None}
+        output_args = {
+            output_path: [
+                "-vf", f"select='between(n\\,{frame}\\,{frame})",
+                "-hide_banner",
+                "-loglevel", "error"
+            ]
+        }
+        ff = FFmpeg(inputs=input_args, outputs=output_args)
+        ff.run()
 
-    def split_vid(self, input_file, output_path, frame):
+    def split_vid(self, input_path, output_path, frame):
         executable = normpath(self.vidreader_path)
         assert exists(
             executable), f"Failed to locate `vidReader` at `{executable}`."
 
-        args = [input_file, output_path, frame]
+        args = [input_path, output_path, frame]
         success, _, e = execute_command(executable, args)
 
         if not success:
