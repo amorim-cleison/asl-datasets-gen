@@ -1,6 +1,6 @@
 work_dir:   ../../work/dataset/
 debug: True
-mode: [2d]
+mode: [2d, 3d]
 format: [mov, vid]
 fps_out: 3
 phases: 

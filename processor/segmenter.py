@@ -37,6 +37,7 @@ class Segmenter(Processor):
                 scene=row.scene,
                 formats=self.formats,
                 cameras=cameras,
+                modes=self.modes,
                 dir=input_dir)
 
             for cam_idx, (cam, fmt_path) in enumerate(camera_files.items()):

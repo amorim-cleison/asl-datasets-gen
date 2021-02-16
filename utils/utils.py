@@ -1,6 +1,9 @@
 from commons.util import exists, filter_files, replace_special_chars
 
 
+MODE_CAMERAS = {"2d": [1], "3d": [1, 2]}
+
+
 def create_filename(session_or_sign=None,
                     base=None,
                     scene=None,
@@ -48,35 +51,31 @@ def get_camera_files_if_all_matched(session_or_sign,
                                     scene,
                                     cameras,
                                     formats,
-                                    person=None,
+                                    modes,
                                     dir=None):
     """
     Obtain the video files for the cameras, and return only if all camera has
     an equivalent file. Otherwise, returns empty.
     """
-    fmt_paths = dict()
+    cam_fmt_paths = dict()
 
     for cam in cameras:
         for fmt in formats:
             path = create_filename(session_or_sign=session_or_sign,
                                    scene=int(scene),
                                    camera=cam,
-                                   person=person,
                                    dir=dir,
                                    ext=fmt)
             if exists(path):
-                fmt_paths[cam] = {"fmt": fmt, "path": path}
+                cam_fmt_paths[cam] = {"fmt": fmt, "path": path}
                 break
-
-    assert all([cam in fmt_paths for cam in cameras]
-               ), "Failed to retrieve camera files"
-    return fmt_paths
+    return get_valid_cam_mode_mapping(cam_fmt_paths, modes)
 
 
 def get_camera_dirs_if_all_matched(basename,
                                    scene,
                                    cameras,
-                                   person=None,
+                                   modes,
                                    dir=None):
     """
     Obtain the video directories for the cameras, and return only if all
@@ -92,9 +91,7 @@ def get_camera_dirs_if_all_matched(basename,
         if filtered:
             camera_dirs[cam] = _dir
 
-    assert all([cam in camera_dirs for cam in cameras]
-               ), "Failed to retrieve camera directories"
-    return camera_dirs
+    return get_valid_cam_mode_mapping(camera_dirs, modes)
 
 
 def create_uid(*fields):
@@ -102,3 +99,32 @@ def create_uid(*fields):
     SIZE = 6
     data = "-".join([str(x) for x in fields])
     return int(sha1(data.encode("utf-8")).hexdigest(), 16) % (10 ** SIZE)
+
+
+def is_valid_cam_mode_mapping(mapping, modes):
+    assert (modes is not None)
+    cams_val = mapping.keys()
+    return any([
+        all([
+            (cams_val and cam in cams_val)
+            for cam in MODE_CAMERAS[mode]
+        ])
+        for mode in modes
+    ])
+
+
+def get_cameras(modes):
+    # 'camera 1': front view
+    # 'camera 2': side view
+    # 'camera 3': facial close up
+    assert (modes is not None)
+    cameras = list()
+
+    for m in modes:
+        cameras.extend(MODE_CAMERAS[m])
+    return set(cameras)
+
+
+def get_valid_cam_mode_mapping(mapping, modes):
+    assert (modes is not None)
+    return mapping if is_valid_cam_mode_mapping(mapping, modes) else dict()

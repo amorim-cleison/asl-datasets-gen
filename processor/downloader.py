@@ -4,7 +4,7 @@ import tempfile
 
 from commons.log import log, log_progress
 from commons.util import download_file, is_downloadable
-from utils import create_filename
+from utils import create_filename, get_valid_cam_mode_mapping
 
 from .processor import Processor
 
@@ -82,7 +82,4 @@ class Downloader(Processor):
                 if is_downloadable(url):
                     cam_urls[cam] = {"fmt": fmt, "url": url}
                     break
-
-        assert all([cam in cam_urls for cam in cameras]
-                   ), "Failed to retrieve URLs to download"
-        return cam_urls
+        return get_valid_cam_mode_mapping(cam_urls, self.modes)

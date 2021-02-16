@@ -1,6 +1,6 @@
 from commons.log import log, log_err
 from commons.util import create_if_missing, exists, normpath, save_args
-from utils import ArgsReader
+from utils import ArgsReader, get_cameras
 
 
 class Processor:
@@ -8,11 +8,14 @@ class Processor:
         Base Processor
     """
 
+    MODE_CAMERAS = {"2d": [1], "3d": [1, 2]}
+
     def __init__(self, phase_name, args):
         self.args_reader = ArgsReader(args, phase_name)
         self.phase_name = phase_name
         self.work_dir = normpath(self.get_arg("work_dir"))
         self.delete_on_finish = self.get_arg("delete_on_finish", False)
+        self.modes = self.get_arg("mode")
 
         # Workdir:
         assert (self.work_dir is not None), "Workdir must be informed"
@@ -40,19 +43,7 @@ class Processor:
         return path
 
     def get_cameras(self):
-        # 'camera 1': front view
-        # 'camera 2': side view
-        # 'camera 3': facial close up
-        MODE_CAMERAS = {"2d": [1], "3d": [1, 2]}
-        mode = self.get_arg("mode")
-        assert (mode is not None)
-        cameras = list()
-
-        for m in mode:
-            assert (
-                m in MODE_CAMERAS), f"There is no camera configuration for the mode `{m}`"
-            cameras.extend(MODE_CAMERAS[m])
-        return set(cameras)
+        return get_cameras(self.modes)
 
     def is_debug(self):
         return self.get_arg("debug", False)

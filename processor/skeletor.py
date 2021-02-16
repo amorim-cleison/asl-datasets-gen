@@ -22,7 +22,6 @@ class Skeletor(Processor):
 
     def __init__(self, argv=None):
         super().__init__('skeleton', argv)
-        self.mode = self.get_arg("mode")
 
         # OpenPose executable file:
         self.openpose = self.get_arg("openpose_path")
@@ -41,7 +40,7 @@ class Skeletor(Processor):
         if not rows.empty:
             self.process_videos(rows, self.input_dir, snippets_dir,
                                 self.output_dir,
-                                self.get_cameras(), self.mode)
+                                self.get_cameras(), self.modes)
 
     def process_videos(self, rows, input_dir, snippets_dir, output_dir,
                        cameras, modes):
@@ -62,9 +61,9 @@ class Skeletor(Processor):
             # Get valid input files per camera:
             camera_dirs = get_camera_dirs_if_all_matched(
                 basename=row.basename,
-                person=row.consultant,
                 scene=row.scene,
                 cameras=cameras,
+                modes=self.modes,
                 dir=input_dir)
 
             if (not mode_paths) or (not camera_dirs):
