@@ -33,12 +33,12 @@ class Downloader(Processor):
         tempdir = tempfile.gettempdir()
         total = len(cameras)
 
-        for idx, (session, scene) in enumerate([group]):
+        for (session, scene) in [group]:
             if session and scene:
                 cam_urls = self.select_format_to_download(
                     session, scene, urls, cameras)
 
-                for cam, fmt_url in cam_urls.items():
+                for idx, (cam, fmt_url) in enumerate(cam_urls.items()):
                     fmt = fmt_url["fmt"]
                     url = fmt_url["url"]
                     tgt_file = create_filename(session_or_sign=session,

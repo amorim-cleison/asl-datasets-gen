@@ -110,7 +110,7 @@ class Segmenter(Processor):
         input_args = {input_path: None}
         output_args = {
             output_path: [
-                "-vf", f"select='between(n\\,{frame}\\,{frame})",
+                "-vf", f"select='between(n\\,{frame}\\,{frame})'",
                 "-hide_banner",
                 "-loglevel", "error"
             ]
