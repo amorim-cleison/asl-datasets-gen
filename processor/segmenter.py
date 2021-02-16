@@ -94,7 +94,7 @@ class Segmenter(Processor):
 
         for frame in range(frame_start, (frame_end + 1), step):
             fn = FORMAT_SPLIT_FN[fmt]
-            output_path = f"{output_dir}/{prefix}_{frame:05d}.ppm",
+            output_path = f"{output_dir}/{prefix}_{frame:05d}.ppm"
             args = {
                 "input_path": input_path,
                 "output_path": output_path,
