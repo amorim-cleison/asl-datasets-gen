@@ -1,4 +1,4 @@
-from commons.util import (replace_special_chars, filter_files, exists)
+from commons.util import exists, filter_files, replace_special_chars
 
 
 def create_filename(session_or_sign=None,
@@ -6,10 +6,10 @@ def create_filename(session_or_sign=None,
                     scene=None,
                     ext=None,
                     camera=None,
-                    person=None,
                     uid=None,
                     dir=None):
     from commons.util import normpath
+
     # assert (session_or_sign is not None), "Session or sign must be informed"
     # assert (scene is not None), "Session must be informed"
 
@@ -24,9 +24,6 @@ def create_filename(session_or_sign=None,
 
     if base is not None:
         parts.append(f"{base:s}")
-
-    if person is not None:
-        parts.append(f"{clean_part(person):s}")
 
     if scene is not None:
         parts.append(f"scn{scene:03.0f}")
@@ -57,19 +54,26 @@ def get_camera_files_if_all_matched(session_or_sign,
     Obtain the video files for the cameras, and return only if all camera has
     an equivalent file. Otherwise, returns empty.
     """
-    for fmt in formats:
-        cam_files = {cam: create_filename(session_or_sign=session_or_sign,
-                                          scene=int(scene),
-                                          camera=cam,
-                                          person=person,
-                                          dir=dir,
-                                          ext=fmt) for cam in cameras}
-        if all([exists(file) for file in cam_files.values()]):
-            return cam_files
-    return dict()
+    fmt_paths = dict()
+
+    for cam in cameras:
+        for fmt in formats:
+            path = create_filename(session_or_sign=session_or_sign,
+                                   scene=int(scene),
+                                   camera=cam,
+                                   person=person,
+                                   dir=dir,
+                                   ext=fmt)
+            if exists(path):
+                fmt_paths[cam] = {"fmt": fmt, "path": path}
+                break
+
+    assert all([cam in fmt_paths for cam in cameras]
+               ), "Failed to retrieve camera files"
+    return fmt_paths
 
 
-def get_camera_dirs_if_all_matched(session_or_sign,
+def get_camera_dirs_if_all_matched(basename,
                                    scene,
                                    cameras,
                                    person=None,
@@ -81,15 +85,16 @@ def get_camera_dirs_if_all_matched(session_or_sign,
     camera_dirs = dict()
 
     for cam in cameras:
-        _dir = create_filename(session_or_sign=session_or_sign,
-                               scene=int(scene),
+        _dir = create_filename(base=basename,
                                camera=cam,
-                               person=person,
                                dir=dir)
         filtered = filter_files(dir=_dir, ext="ppm")
         if filtered:
             camera_dirs[cam] = _dir
-    return camera_dirs if len(camera_dirs) == len(cameras) else dict()
+
+    assert all([cam in camera_dirs for cam in cameras]
+               ), "Failed to retrieve camera directories"
+    return camera_dirs
 
 
 def create_uid(*fields):

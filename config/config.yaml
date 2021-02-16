@@ -1,6 +1,7 @@
 work_dir:   ../../work/dataset/
-debug: False
-mode: [2d, 3d]
+debug: True
+mode: [2d]
+format: [mov, vid]
 fps_out: 3
 phases: 
   download, 
@@ -24,7 +25,7 @@ segment:
   delete_on_finish: false
   input_dir: ./download
   output_dir: ./segmented
-  vidreader_path: ../asllvd-vid-reader/bin/vidReader
+  vidreader_path: ../asllvd-vid-reader/bin/lin/vidReader
   fps_in: 60
 
 skeleton:

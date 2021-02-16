@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import pandas as pd
-from commons.log import log_progress_bar, log, log_progress, auto_log_progress
+from commons.log import auto_log_progress
 from commons.util import is_empty, normpath
 from utils import create_filename, create_uid
 
@@ -51,7 +51,7 @@ class Metadator(Processor):
 
                 # Validate if already exists:
                 if basename in uids:
-                    raise Exception("UID repetido")
+                    raise Exception("Duplicated UID")
                 else:
                     uids.add(basename)
 
@@ -106,9 +106,10 @@ class Metadator(Processor):
             return df
 
     def __ensure_metadata(self, path, source_url):
-        from commons.util import exists, download_file
         import shutil
         import tempfile
+
+        from commons.util import download_file, exists
 
         if exists(path):
             metadata_ok = True

@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 import shutil
 import tempfile
-from itertools import product
 
 from commons.log import log, log_progress
-from commons.util import download_file, extension, filename, is_downloadable
+from commons.util import download_file, is_downloadable
 from utils import create_filename
 
 from .processor import Processor
@@ -15,11 +14,10 @@ class Downloader(Processor):
         Preprocessor for splitting original videos
     """
 
-    FORMAT_PRIORITIES = ["mov", "vid"]
-
     def __init__(self, args=None):
         super().__init__('download', args)
         self.url = self.get_arg("url")
+        self.formats = self.get_arg("format")
 
     def run(self, group, rows):
         """
@@ -37,16 +35,18 @@ class Downloader(Processor):
 
         for idx, (session, scene) in enumerate([group]):
             if session and scene:
-                fmt, cam_urls = self.select_format_to_download(
+                cam_urls = self.select_format_to_download(
                     session, scene, urls, cameras)
 
-                for cam, url in cam_urls.items():
+                for cam, fmt_url in cam_urls.items():
+                    fmt = fmt_url["fmt"]
+                    url = fmt_url["url"]
                     tgt_file = create_filename(session_or_sign=session,
                                                scene=scene,
                                                camera=cam,
                                                dir=output_dir,
                                                ext=fmt)
-                    log_progress(idx + 1, total, filename(tgt_file))
+                    log_progress(idx + 1, total, f"...{url[-50:]}")
 
                     if self.output_exists(tgt_file):
                         self.log_skipped()
@@ -58,7 +58,7 @@ class Downloader(Processor):
                                                    dir=tempdir,
                                                    ext=fmt)
 
-                        log(f"    Downloading '{url}'...", 2)
+                        log("    Downloading...", 2)
                         success, e = download_file(url, tmp_file, True)
 
                         if success:
@@ -71,11 +71,18 @@ class Downloader(Processor):
         return url.format(session=session, scene=int(scene), camera=camera)
 
     def select_format_to_download(self, session, scene, urls, cameras):
-        for fmt in self.FORMAT_PRIORITIES:
-            cam_urls = {cam: self.create_source_url(urls[fmt],
-                                                    session=session,
-                                                    scene=scene,
-                                                    camera=cam) for cam in cameras}
-            if all([is_downloadable(url) for url in cam_urls.values()]):
-                return fmt, cam_urls
-        return None
+        cam_urls = dict()
+
+        for cam in cameras:
+            for fmt in self.formats:
+                url = self.create_source_url(urls[fmt],
+                                             session=session,
+                                             scene=scene,
+                                             camera=cam)
+                if is_downloadable(url):
+                    cam_urls[cam] = {"fmt": fmt, "url": url}
+                    break
+
+        assert all([cam in cam_urls for cam in cameras]
+                   ), "Failed to retrieve URLs to download"
+        return cam_urls

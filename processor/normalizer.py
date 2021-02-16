@@ -1,20 +1,24 @@
 #!/usr/bin/env python3
-from commons.log import log_progress
-from commons.util import exists, filename
-from commons.util.io_util import (delete_file, normpath,
-                                  read_json, save_json)
+from itertools import product
+
+from commons.log import log, log_progress
+from commons.util import exists
+from commons.util.io_util import (create_if_missing, delete_file, directory,
+                                  normpath, read_json, save_json)
 from constant import PARTS_OPENPOSE_MAPPING
 from utils import create_filename
 
 from .processor import Processor
-
-from itertools import product
 
 
 class Normalizer(Processor):
     """
         Preprocessor for normalizing skeleton coordinates
     """
+    COORDS_MODE = {
+        "2d": ["x", "y"],
+        "3d": ["x", "y", "z"]
+    }
 
     def __init__(self, args=None):
         super().__init__('normalize', args)
@@ -43,21 +47,18 @@ class Normalizer(Processor):
             if not exists(src_path) or self.output_exists(tgt_path):
                 self.log_skipped()
             else:
+                log("    Normalizing...")
                 data = read_json(src_path)
 
                 try:
                     # Normalize and save data:
                     data["frames"] = [self.normalize_frame(
                         frame, mode) for frame in data["frames"]]
+                    create_if_missing(directory(tgt_path))
                     save_json(data, tgt_path)
                 except Exception as e:
                     self.log_failed(e)
                     delete_file(tgt_path)
-
-    COORDS_MODE = {
-        "2d": ["x", "y"],
-        "3d": ["x", "y", "z"]
-    }
 
     def normalize_frame(self, frame, mode):
         ref_distance = self.get_ref_distance(frame, mode)

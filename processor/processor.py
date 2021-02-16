@@ -1,7 +1,5 @@
-from commons.util import (create_if_missing, exists, normpath,
-                          save_args)
 from commons.log import log, log_err
-
+from commons.util import create_if_missing, exists, normpath, save_args
 from utils import ArgsReader
 
 
@@ -80,7 +78,7 @@ class Processor:
         return exists(path) or exists(del_path)
 
     def delete_output_if_enabled(self):
-        from commons.util import filter_files, save_items, delete_file
+        from commons.util import delete_file, filter_files, save_items
 
         if self.delete_on_finish and self.output_dir:
             all_files = set(filter_files(self.output_dir))

@@ -3,11 +3,11 @@ import copy
 import tempfile
 
 from commons.log import log, log_progress
-from commons.util import (create_if_missing, delete_dir, execute_command,
-                          exists, filename, filter_files, normpath, read_json,
-                          save_json)
-from utils import (create_filename, get_camera_dirs_if_all_matched)
-from constant import PARTS_OPENPOSE_MAPPING, KEYPOINTS_COCO
+from commons.util import (create_if_missing, delete_dir, directory,
+                          execute_command, exists, filename, filter_files,
+                          normpath, read_json, save_json)
+from constant import KEYPOINTS_COCO, PARTS_OPENPOSE_MAPPING
+from utils import create_filename, get_camera_dirs_if_all_matched
 
 from .processor import Processor
 
@@ -59,39 +59,30 @@ class Skeletor(Processor):
             mode_paths = {mode: path for mode,
                           path in mode_paths.items() if not self.output_exists(path)}
 
-            if not mode_paths:
+            # Get valid input files per camera:
+            camera_dirs = get_camera_dirs_if_all_matched(
+                basename=row.basename,
+                person=row.consultant,
+                scene=row.scene,
+                cameras=cameras,
+                dir=input_dir)
+
+            if (not mode_paths) or (not camera_dirs):
                 self.log_skipped()
             else:
-                # Get valid camera files:
-                camera_files = get_camera_dirs_if_all_matched(
-                    session_or_sign=row.label,
-                    person=row.consultant,
-                    scene=row.scene,
-                    cameras=cameras,
-                    dir=input_dir)
+                try:
+                    create_if_missing(snippets_dir)
 
-                if camera_files:
-                    # Get properties:
-                    properties = self.get_properties(row, cameras)
+                    # Estimate skeletons/snippets:
+                    cam_snippets = self.estimate_snippets(
+                        camera_dirs, snippets_dir)
 
-                    try:
-                        create_if_missing(snippets_dir)
-
-                        # Estimate skeletons/snippets:
-                        cam_snippets = self.estimate_snippets(
-                            camera_files, snippets_dir)
-
-                        for mode, path in mode_paths.items():
-                            # Pack snippets into single data:
-                            data = self.pack_snippets(
-                                cam_snippets, properties, mode)
-
-                            # Save data:
-                            save_json(data, path)
-                    except Exception as e:
-                        self.log_failed(e)
-                    finally:
-                        delete_dir(snippets_dir)
+                    # Pack snippets and save:
+                    self.pack_and_save_snippets(cam_snippets, mode_paths, row)
+                except Exception as e:
+                    self.log_failed(e)
+                finally:
+                    delete_dir(snippets_dir)
 
     def get_distinct_items(self, files_properties):
         from itertools import islice
@@ -107,14 +98,13 @@ class Skeletor(Processor):
             len(distinct_items)) if self.is_debug() else len(distinct_items)
         return islice(distinct_items, nrows), nrows
 
-    def get_properties(self, row, cameras):
+    def get_properties(self, row, mode):
         return {
             "label": row.label,
             "gloss": row.gloss,
             "consultant": row.consultant,
             "session": row.session,
             "scene": row.scene,
-            # "cameras": cameras,
             "frame_start": row.frame_start,
             "frame_end": row.frame_end,
             "handshape_dh_start": row.d_start_hs,
@@ -122,25 +112,24 @@ class Skeletor(Processor):
             "handshape_ndh_start": row.nd_start_hs,
             "handshape_ndh_end": row.nd_end_hs,
             "passive_arm": row.passive_arm,
-            "fps": self.get_arg("fps_out")
+            "fps": self.get_arg("fps_out"),
+            "mode": mode
         }
 
     def estimate_snippets(self, camera_dirs, snippets_dir):
         cam_snippets = dict()
 
-        # Estimate skeletons for all the cameras:
-        for cam, dir in camera_dirs.items():
-            log(f"   Estimating camera {cam}...")
-            self.run_openpose(dir, snippets_dir)
+        for cam, _dir in camera_dirs.items():
+            log(f"   Estimating (cam {cam:02.0f})...")
+            self.run_openpose(_dir, snippets_dir)
 
-            file_basename = filename(dir, False)
-            file_snippets = sorted(
+            basename = filename(_dir, False)
+            snippets = sorted(
                 filter_files(snippets_dir,
-                             name=f"{file_basename}*",
+                             name=f"{basename}*",
                              ext="json"))
-            cam_snippets[cam] = file_snippets
-            assert (len(cam_snippets) >
-                    0), "Could not locate estimated snippet files"
+            assert (len(snippets) > 0), "Failed to estimate snippets."
+            cam_snippets[cam] = snippets
         return cam_snippets
 
     def run_openpose(self, dir, snippets_dir):
@@ -161,12 +150,23 @@ class Skeletor(Processor):
         if not success:
             raise e
 
+    def pack_and_save_snippets(self, cam_snippets, mode_paths, row):
+        for mode, path in mode_paths.items():
+            log(f"   Packing ({mode})...")
+            properties = self.get_properties(row, mode)
+
+            # Pack snippets into single data and save:
+            data = self.pack_snippets(
+                cam_snippets, properties, mode)
+            create_if_missing(directory(path))
+            save_json(data, path)
+
     def pack_snippets(self, cams_snippets, properties, mode="2d"):
         assert (mode is not None), "`Mode` must be informed"
 
         def validate_mapping(cams_snippets, required_size, mode):
             assert (
-                len(cams_snippets) == required_size
+                len(cams_snippets) >= required_size
             ), f"Camera x snippets mapping size is not compatible with '{mode}' mode"
 
         if mode == "2d":
