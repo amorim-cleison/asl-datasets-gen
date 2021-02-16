@@ -1,6 +1,7 @@
 work_dir: ~/work/asllvd-skeleton/dataset
 debug: False
-mode: 3d
+mode: [2d, 3d]
+format: [mov, vid]
 fps_out: 3
 phases: 
   download, 
@@ -17,6 +18,7 @@ download:
   output_dir: ./download
   url: 
     vid: http://csr.bu.edu/ftp/asl/asllvd/asl-data2/{session}/scene{scene}-camera{camera}.vid
+    mov: http://csr.bu.edu/ftp/asl/asllvd/asl-data2/quicktime/{session}/scene{scene}-camera{camera}.mov
 
 segment:
   delete_on_finish: True
