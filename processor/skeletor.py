@@ -180,7 +180,7 @@ class Skeletor(Processor):
             frames = []
 
         packed_data = copy.deepcopy(properties)
-        packed_data["frames"] = frames
+        packed_data["skeletons"] = frames
         return packed_data
 
     def merge_frames_into_3d(self, frames_cam1, frames_cam2):
