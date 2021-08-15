@@ -38,8 +38,8 @@ class Skeletor(Processor):
         create_if_missing(snippets_dir)
 
         if not rows.empty:
-            self.process_videos(rows, self.input_dir, snippets_dir,
-                                self.output_dir,
+            self.process_videos(rows, self.input_dir,
+                                snippets_dir, self.output_dir,
                                 self.get_cameras(), self.modes)
 
     def process_videos(self, rows, input_dir, snippets_dir, output_dir,
@@ -51,20 +51,24 @@ class Skeletor(Processor):
             log_progress(row_idx + 1, total, row.basename)
 
             # Create target paths per mode:
-            mode_paths = {mode: create_filename(base=row.basename,
-                                                dir=normpath(
-                                                    f"{output_dir}/{mode}"),
-                                                ext="json") for mode in modes}
-            mode_paths = {mode: path for mode,
-                          path in mode_paths.items() if not self.output_exists(path)}
+            mode_paths = {
+                mode: create_filename(base=row.basename,
+                                      dir=normpath(f"{output_dir}/{mode}"),
+                                      ext="json")
+                for mode in modes
+            }
+            mode_paths = {
+                mode: path
+                for mode, path in mode_paths.items()
+                if not self.output_exists(path)
+            }
 
             # Get valid input files per camera:
-            camera_dirs = get_camera_dirs_if_all_matched(
-                basename=row.basename,
-                scene=row.scene,
-                cameras=cameras,
-                modes=self.modes,
-                dir=input_dir)
+            camera_dirs = get_camera_dirs_if_all_matched(basename=row.basename,
+                                                         scene=row.scene,
+                                                         cameras=cameras,
+                                                         modes=self.modes,
+                                                         dir=input_dir)
 
             if (not mode_paths) or (not camera_dirs):
                 self.log_skipped()
@@ -124,9 +128,7 @@ class Skeletor(Processor):
 
             basename = filename(_dir, False)
             snippets = sorted(
-                filter_files(snippets_dir,
-                             name=f"{basename}*",
-                             ext="json"))
+                filter_files(snippets_dir, name=f"{basename}*", ext="json"))
             assert (len(snippets) > 0), "Failed to estimate snippets."
             cam_snippets[cam] = snippets
         return cam_snippets
@@ -155,8 +157,7 @@ class Skeletor(Processor):
             properties = self.get_properties(row, mode)
 
             # Pack snippets into single data and save:
-            data = self.pack_snippets(
-                cam_snippets, properties, mode)
+            data = self.pack_snippets(cam_snippets, properties, mode)
             create_if_missing(directory(path))
             save_json(data, path)
 
@@ -180,7 +181,7 @@ class Skeletor(Processor):
             frames = []
 
         packed_data = copy.deepcopy(properties)
-        packed_data["skeletons"] = frames
+        packed_data["frames"] = frames
         return packed_data
 
     def merge_frames_into_3d(self, frames_cam1, frames_cam2):
@@ -193,11 +194,13 @@ class Skeletor(Processor):
             frame = copy.deepcopy(frame_cam1)
 
             for part in self.PARTS_MAPPING.values():
-                frame[part]["z"] = frame_cam2[part]["x"]
-                frame[part]["score"] = [
+                frame['skeleton'][part]["z"] = frame_cam2['skeleton'][part][
+                    "x"]
+                frame['skeleton'][part]["score"] = [
                     (score_cam1 + score_cam2) / 2
-                    for (score_cam1, score_cam2) in zip(
-                        frame_cam1[part]["score"], frame_cam2[part]["score"])
+                    for (score_cam1, score_cam2
+                         ) in zip(frame_cam1['skeleton'][part]["score"],
+                                  frame_cam2['skeleton'][part]["score"])
                 ]
             merged_frames.append(frame)
         return merged_frames
@@ -210,13 +213,13 @@ class Skeletor(Processor):
 
         for path in snippets:
             data = read_json(path)
-            frame = {'frame_index': get_frame_index(path)}
+            frame = {'frame_index': get_frame_index(path), 'skeleton': {}}
 
             # Consider only first person:
             person = data['people'][0]
 
             for src_part, tgt_part in self.PARTS_MAPPING.items():
-                frame[tgt_part] = self.create_coordinates(
+                frame['skeleton'][tgt_part] = self.create_coordinates(
                     tgt_part, person[src_part])
             frames.append(frame)
         return frames

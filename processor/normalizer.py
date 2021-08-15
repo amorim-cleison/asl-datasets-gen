@@ -15,10 +15,7 @@ class Normalizer(Processor):
     """
         Preprocessor for normalizing skeleton coordinates
     """
-    COORDS_MODE = {
-        "2d": ["x", "y"],
-        "3d": ["x", "y", "z"]
-    }
+    COORDS_MODE = {"2d": ["x", "y"], "3d": ["x", "y", "z"]}
 
     def __init__(self, args=None):
         super().__init__('normalize', args)
@@ -26,8 +23,8 @@ class Normalizer(Processor):
 
     def run(self, group, rows):
         if not rows.empty:
-            self.process_normalization(
-                rows, self.mode, self.input_dir, self.output_dir)
+            self.process_normalization(rows, self.mode, self.input_dir,
+                                       self.output_dir)
 
     def process_normalization(self, rows, modes, input_dir, output_dir):
         rows_modes = product(rows.itertuples(), modes)
@@ -38,8 +35,7 @@ class Normalizer(Processor):
                                        dir=normpath(f"{input_dir}/{mode}"),
                                        ext="json")
             tgt_path = create_filename(base=row.basename,
-                                       dir=normpath(
-                                           f"{output_dir}/{mode}"),
+                                       dir=normpath(f"{output_dir}/{mode}"),
                                        ext="json")
 
             log_progress(row_idx + 1, total, f"{row.basename} ({mode})")
@@ -52,8 +48,10 @@ class Normalizer(Processor):
 
                 try:
                     # Normalize and save data:
-                    data["frames"] = [self.normalize_frame(
-                        frame, mode) for frame in data["frames"]]
+                    data["frames"] = [
+                        self.normalize_frame(frame, mode)
+                        for frame in data["frames"]
+                    ]
                     create_if_missing(directory(tgt_path))
                     save_json(data, tgt_path)
                 except Exception as e:
@@ -64,11 +62,11 @@ class Normalizer(Processor):
         ref_distance = self.get_ref_distance(frame, mode)
 
         for part in PARTS_OPENPOSE_MAPPING.values():
-            if isinstance(frame[part], dict):
+            if isinstance(frame['skeleton'][part], dict):
                 for coord in self.COORDS_MODE[mode]:
-                    if coord in frame[part]:
-                        frame[part][coord] = list(
-                            frame[part][coord] / ref_distance)
+                    if coord in frame['skeleton'][part]:
+                        frame['skeleton'][part][coord] = list(
+                            frame['skeleton'][part][coord] / ref_distance)
         return frame
 
     def get_ref_distance(self, frame, mode):
@@ -86,15 +84,15 @@ class Normalizer(Processor):
             return Coordinate(x, y, z, part["score"][idx], name=name)
 
         # Find indexes:
-        body = frame["body"]
+        body = frame["skeleton"]["body"]
         idx_left_shoulder = body["name"].index("shoulder_left")
         idx_right_shoulder = body["name"].index("shoulder_right")
 
         # Find shoulders:
-        left_shoulder = get_coordinate(
-            body, mode, idx_left_shoulder, "left_shoulder")
-        right_shoulder = get_coordinate(
-            body, mode, idx_right_shoulder, "right_shoulder")
+        left_shoulder = get_coordinate(body, mode, idx_left_shoulder,
+                                       "left_shoulder")
+        right_shoulder = get_coordinate(body, mode, idx_right_shoulder,
+                                        "right_shoulder")
 
         # Validate shoulders:
         if left_shoulder.is_zero():
