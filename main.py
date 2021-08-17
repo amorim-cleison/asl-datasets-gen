@@ -17,6 +17,7 @@ ARGUMENTS = [
     Argument('-sg', '--segment', type=dict, help='Split configs'),
     Argument('-dl', '--download', type=dict, help='Download configs'),
     Argument('-no', '--normalize', type=dict, help='Normalization configs'),
+    Argument('-pn', '--phonology', type=dict, help='Phonology features configs'),
     Argument('-me', '--metadata', type=dict, help='Metadata configs')
 ]
 
@@ -24,7 +25,8 @@ PHASES = {
     "download": p.Downloader,
     "segment": p.Segmenter,
     "skeleton": p.Skeletor,
-    "normalize": p.Normalizer
+    "normalize": p.Normalizer,
+    "phonology": p.Phonologyzer
 }
 
 
