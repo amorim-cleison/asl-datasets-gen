@@ -7,7 +7,8 @@ phases:
   download, 
   segment, 
   skeleton,
-  normalize
+  normalize,
+  phonology
 
 metadata:
   path:  ~/work/asllvd-skeleton/dataset/dai-asllvd.xlsx
@@ -38,3 +39,12 @@ normalize:
   delete_on_finish: False
   input_dir: ./skeleton
   output_dir: ./normalized
+
+phonology:
+  delete_on_finish: false
+  input_dir: ./normalized
+  output_dir: ./phonology
+  input_model:
+    model:
+      parts: [ body, face, hand_left, hand_right ] # do not change the order
+    reader: AsllvdSkeletonReader
