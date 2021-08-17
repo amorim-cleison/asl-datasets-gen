@@ -44,7 +44,3 @@ phonology:
   delete_on_finish: false
   input_dir: ./normalized
   output_dir: ./phonology
-  input_model:
-    model:
-      parts: [ body, face, hand_left, hand_right ] # do not change the order
-    reader: AsllvdSkeletonReader

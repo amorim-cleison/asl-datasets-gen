@@ -1,7 +1,4 @@
 class PhonoExtactor():
-    def __init__(self, model):
-        self._model = model
-
     def create_result(self, value, score=None):
         from constant import CONFIDENCE_THRESHOLD
         if value:

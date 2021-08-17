@@ -10,18 +10,11 @@ PARTS_OPENPOSE_MAPPING = {
     "hand_right_keypoints_2d": PART_HAND_RIGHT
 }
 
+PARTS = PARTS_OPENPOSE_MAPPING.values()
 
 # -------------------------------------------------------------------
 # PHONOLOGY:
 # -------------------------------------------------------------------
-from reader.json_reader import AsllvdSkeletonReader
-
-MODEL_ASLLVD_SKELETON = {
-    "model": {
-        "parts": set(["body", "face", "hand_left", "hand_right"])
-    },
-    "reader": AsllvdSkeletonReader
-}
 
 MOVE_THRESHOLD = 0.30
 ORIENTATION_THRESHOLD = 0.30
