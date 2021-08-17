@@ -52,15 +52,20 @@ class AsllvdSkeletonReader(JsonReader):
     def __get_parts_coordinates(self, frame):
         new_frame = deepcopy(frame)
 
+        def get_property(new_frame, part, prop, i):
+            return (new_frame["skeleton"][part][prop][i]) if (
+                prop in new_frame["skeleton"][part]) else None
+
         for part in self._model["parts"]:
-            points = len(new_frame["skeleton"][part]["score"])
-            new_frame["skeleton"][part] = {
-                new_frame["skeleton"][part]["name"][i]:
-                Coordinate(new_frame["skeleton"][part]["x"][i],
-                           new_frame["skeleton"][part]["y"][i],
-                           new_frame["skeleton"][part]["z"][i],
-                           new_frame["skeleton"][part]["score"][i],
-                           new_frame["skeleton"][part]["name"][i])
-                for i in range(points)
-            }
+            if "skeleton" in new_frame:
+                points = len(new_frame["skeleton"][part]["score"])
+                new_frame["skeleton"][part] = {
+                    new_frame["skeleton"][part]["name"][i]:
+                    Coordinate(get_property(new_frame, part, "x", i),
+                               get_property(new_frame, part, "y", i),
+                               get_property(new_frame, part, "z", i),
+                               get_property(new_frame, part, "score", i),
+                               get_property(new_frame, part, "name", i))
+                    for i in range(points)
+                }
         return new_frame

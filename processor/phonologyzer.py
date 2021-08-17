@@ -63,10 +63,13 @@ class Phonologyzer(Processor):
     def extract_attributes(self, data, model):
         extractor = PhonoExtactor(model)
         frames = data["frames"]
-        last_frame = None
+        total_frames = len(frames)
+        last_skeleton = None
 
-        for idx_frame, frame in enumerate(frames):
-            frame["phono_attributes"] = extractor.extract_attributes(
-                data, frame, idx_frame, len(frames), last_frame)
+        for cur_index, frame in enumerate(frames):
+            skeleton = frame["skeleton"]
+            frame["phonology"] = extractor.extract_attributes(
+                data, skeleton, last_skeleton, cur_index, total_frames)
+            last_skeleton = skeleton
             del frame["skeleton"]
         return data
