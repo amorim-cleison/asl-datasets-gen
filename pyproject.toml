@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "asllvd-skeleton-creator"
+name = "asl-datasets-generator"
 version = "0.1.0"
-description = ""
+description = "This project generates datasets for the ASL."
 authors = ["Cleison Amorim <cca5@cin.ufpe.br>"]
 
 [tool.poetry.dependencies]

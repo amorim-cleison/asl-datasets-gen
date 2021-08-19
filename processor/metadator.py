@@ -20,14 +20,16 @@ class Metadator(Processor):
             "debug_items") if self.is_debug() else None
 
         # Load metadata:
-        path = normpath(self.get_arg("path"))
+        path = self.get_arg("path")
+        fullpath = normpath(f"{self.work_dir}/{path}")
+
         download_url = self.get_arg("download_url")
         columns = [
             'Main New Gloss', 'Consultant', 'D Start HS', 'N-D Start HS',
             'D End HS', 'N-D End HS', 'Passive Arm', 'Session', 'Scene',
             'Start', 'End'
         ]
-        metadata_rows = self.load_metadata(path, download_url, columns, nrows)
+        metadata_rows = self.load_metadata(fullpath, download_url, columns, nrows)
 
         # Process metadata:
         if not metadata_rows.empty:
