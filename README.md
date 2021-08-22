@@ -20,7 +20,7 @@ Learn more about the datasets:
 | [Pre-print (arXiv)](https://arxiv.org/pdf/1901.11164)
 
 
-## Download
+## Download datasets
 
 Download the processed datasets by using the links below:
 
