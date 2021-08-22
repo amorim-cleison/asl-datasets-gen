@@ -1,7 +1,7 @@
 # **ASL-Skeleton3D** and **ASL-Phono** Datasets Generator
 
-![Build](https://github.com/amorim-cleison/asllvd-skeleton-creator/workflows/Build/badge.svg)
-![Code Quality](https://github.com/amorim-cleison/asllvd-skeleton-creator/workflows/Code%20Quality/badge.svg)
+![Build](https://github.com/amorim-cleison/asl-datasets-gen/workflows/Build/badge.svg)
+![Code Quality](https://github.com/amorim-cleison/asl-datasets-gen/workflows/Code%20Quality/badge.svg)
 
 The **ASL-Skeleton3D** contains a representation based on mapping  into  the  three-dimensional  space  the  coordinates  of the  signers  in  the  ASLLVD  dataset. The **ASL-Phono**, in turn, introduces a novel linguistics-based representation,  which  describes  the  signs  in  the  ASLLVD  dataset in terms of a set of attributes of the American Sign Language phonology.
 
