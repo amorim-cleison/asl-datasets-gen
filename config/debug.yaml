@@ -1,12 +1,9 @@
-# ------------------------------------------------
-# CONFIGURATION: ASL-PHONO DATASET
-# ------------------------------------------------
-work_dir:   ../work/dataset/
-debug: false
+work_dir: ../work/dataset/
+debug: true
 mode: [3d]
 format: [mov, vid]
 fps_out: 3
-phases: 
+phases:
   download, 
   segment, 
   skeleton,
@@ -14,14 +11,14 @@ phases:
   phonology
 
 metadata:
-  debug_items: 2
+  debug_items: 3
   path:  ./dai-asllvd.xlsx
   download_url: http://www.bu.edu/asllrp/dai-asllvd-BU_glossing_with_variations_HS_information-extended-urls-RU.xlsx
 
 download:
   delete_on_finish: true
   output_dir: ./download
-  url: 
+  url:
     vid: http://csr.bu.edu/ftp/asl/asllvd/asl-data2/{session}/scene{scene}-camera{camera}.vid
     mov: http://csr.bu.edu/ftp/asl/asllvd/asl-data2/quicktime/{session}/scene{scene}-camera{camera}.mov
 
@@ -29,22 +26,21 @@ segment:
   delete_on_finish: true
   input_dir: ./download
   output_dir: ./segmented
-  # -> Select linux or windows according to your OS:
-  vidreader_path: ./3rd_party/linux/vidReader
-  # vidreader_path: ./3rd_party/windows/vidReader
+  # vidreader_path: ./3rd_party/linux/vidReader
+  vidreader_path: ./3rd_party/windows/vidReader
   fps_in: 60
 
 skeleton:
   delete_on_finish: true
   input_dir: ./segmented
   output_dir: ./skeleton
-  # -> Set the path to the binary in your OS. The one below, will work on Docker container:
-  openpose_path: openpose
-  # -> Set the path to the 'models' folder, inside your main OpenPose installation folder:
-  models_dir: /openpose/models
+  # openpose_path: openpose
+  # models_dir: /openpose/models
+  openpose_path: ../../openpose/bin/OpenPoseDemo.exe
+  models_dir: ../../openpose/models
 
 normalize:
-  delete_on_finish: true
+  delete_on_finish: false
   input_dir: ./skeleton
   output_dir: ./normalized
 

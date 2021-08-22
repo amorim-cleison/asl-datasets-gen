@@ -10,91 +10,112 @@ The **ASL-Skeleton3D** contains a representation based on mapping  into  the  th
 
 Learn more about the datasets:
 
-- Paper: "ASL-Skeleton3D and ASL-Phono: Two NovelDatasets for the American Sign Language" -->
-[Pre-print (arXiv)](http://www.cin.ufpe.br/~cca5/asl-3d-phono-datasets)
+- Paper: "ASL-Skeleton3D and ASL-Phono: Two NovelDatasets for the American Sign Language" ->
+ [CIn](http://www.cin.ufpe.br/~cca5/asl-datasets/paper)
+
 
 
 ### Previous works
 In the past, we worked on previous versions of the datasets presented here. Although those versions are now deprecated, you can find more about them in the links:
 
-- Paper: "Spatial-Temporal Graph Convolutional Networks for Sign Language Recognition" --> 
-[ICANN 2019](https://doi.org/10.1007/978-3-030-30493-5_59) |
-[Pre-print (arXiv)](https://arxiv.org/pdf/1901.11164)
+- Paper: "Spatial-Temporal Graph Convolutional Networks for Sign Language Recognition" ->
+ [CIn](http://www.cin.ufpe.br/~cca5/asl-datasets/paper)
+| [ICANN 2019](https://doi.org/10.1007/978-3-030-30493-5_59)
+| [Pre-print (arXiv)](https://arxiv.org/pdf/1901.11164)
 
 
-## Requirements
-Your system is required to have the following software configured:
+## Download datasets
+
+Download the processed datasets by using the links below:
+
+- **ASL-Skeleton3D** -> [CIn](https://www.cin.ufpe.br/~cca5/asl-datasets/download/asl-skeleton3d)
+- **ASL-Phono** -> [CIn](https://www.cin.ufpe.br/~cca5/asl-datasets/download/asl-phono)
+
+
+## Generate datasets
+
+If you prefer generating the datasets by yourself, this section presents the requirements, setup and procedures to execute the code. 
+
+The generation is a process comprising the phases below, which start by the retrieval of the original ASLLVD samples for then computing additional properties, as follows:
+
+- *download*: original samples (video sequences) are obtained from the ASLLVD.
+- *segment*: signs are segmented from the original samples.
+- *skeleton*: signer skeletons are estimated.
+- *normalize*: the coordinates of the skeletons are normalized.
+- *phonology*: the phonological attributes are extracted.
+
+
+### Requirements
+To generate the datasets, your system will need the following software configured:
 - [Python 3.7 (or later)](https://www.python.org/downloads/)
 - [Poetry (latest)](https://python-poetry.org/)
 - [OpenPose](https://github.com/CMU-Perceptual-Computing-Lab/openpose)
-  - [OpenPose: additional requirements and dependencies](https://github.com/CMU-Perceptual-Computing-Lab/openpose/blob/master/doc/installation/0_index.md#operating-systems-requirements-and-dependencies)
-- asllvd-vid-reader (available embedded to this project in `./3rd_party/` folder or at [source-code repository](https://github.com/amorim-cleison/asllvd-vid-reader))
+- asllvd-vid-reader (embedded to this project in the `./3rd_party/` folder or at the [source-code repository](https://github.com/amorim-cleison/asllvd-vid-reader))
 
-OpenPose will require your machine to have additional hardware and software configured which might include (but not limited to) the following. Check the link
-- NVIDIA GPU (graphic card with at least 1.6 GB available)
-- [CUDA 10.0 (or later)](https://developer.nvidia.com/cuda-downloads)
-- [cuDNN 7 (or later)](https://developer.nvidia.com/cudnn)
+> OpenPose will require additional hardware and software configured which might include a NVIDIA GPU and related drivers and software. Please, check [this link](https://github.com/CMU-Perceptual-Computing-Lab/openpose/blob/master/doc/installation/0_index.md#operating-systems-requirements-and-dependencies) for the full list:
 
-
-> Alternatively, you can use the following Docker container, which contains most of the software requirements above (make sure to observe the hardware requirements):
+> **Docker**
+>
+> If you prefer running a **Docker container** with the software requirements already configured, check out the link below -- just make sure to have a GPU available to your Docker environment:
 > - [Docker / OpenPose](https://hub.docker.com/r/amorimcleison/openpose)
 
 
-## Installation
-Once observed the requirements above, checkout the source code and execute the following command. This will configure a virtual environment and install the dependencies required:
+### Installation
+Once observed the requirements, checkout the source code and execute the following command, which will setup your virtual environment and dependencies:
 
-```
+```console
 poetry install
 ```
 
-## Configuration
-The generation of datasets is performed through several phases, ranging from downloading the ASLLVD samples to generating skeletons and processing additional attributes, as follows:
+### Configuration
+There is a set of files in the folder `./config` that will help you to configure the parameters for generating the datasets. A good starting point is to take a look into the [`./config/template.yaml`](config/template.yaml) file, which contains a basic structure with all the properties documented.
 
-- **download**: videos are obtained from the ASLLVD.
-- **segment**: signs are segmented from original videos.
-- **skeleton**: skeletons are estimated.
-- **normalize**: coordinates of the skeletons are normalized.
-- **phonology**: phonological attributes are extracted.
+You will also find other predefined configurations that might help you to generate the datasets. Just remember to always review the comments inside of the files to fine-tune the execution to your environment.
 
-Thus, in order to configure the parameters of the phases above, you can use the files under the folder `./config`. 
+> Learn about the configurations available in the [`./config/template.yaml`](config/template.yaml), which contains the properties documented.
 
 
-There are also predefined configuration that will allow you easily proceed with the generation of the ASL datasets:
-- `./config/asl-skeleton3d.yaml`
-- `./config/asl-phono.yaml`
+### Generation
 
+#### **ASL-Skeleton3D**
+The ASL-Skeleton3D is generated by using the configuration predefined in the file `./config/asl-skeleton3d.yaml`. 
+Thus, to start processing the dataset, execute the following command informing this file as the parameter `-c` (or `--config`):
 
-
-## Execution
-
-To execute this code, run
+```python
+poetry run python main.py -c ./config/asl-skeleton3d.yaml
 ```
-python main.py preprocessing -c config/config.yaml [--work_dir <work folder>]
+
+The resulting dataset will be located in the folder configured as output for the phase *normalize*, which by default is set to `../work/dataset/normalized`.
+
+
+#### **ASL-Phono**
+The ASL-Skeleton3D is generated by using the configuration predefined in the file `./config/asl-phono.yaml`.
+Thus, to start processing the dataset, execute the following command informing this file as the parameter `-c` (or `--config`):
+
+```python
+poetry run python main.py -c ./config/asl-phono.yaml
 ```
-The training results, configurations and logging files, will be saved under the ```./work_dir``` by default or ```<work folder>``` if you appoint it.
 
-You can modify the preprocessing parameters in the command line or configuration files. The order of priority is:  command line > config file > default parameter. For more information, use ```main.py -h```.
+The resulting dataset will be located in the folder configured as output for the phase *phonology*, which by default is set to `../work/dataset/phonology`.
 
 
-## Configuration
+### Logs
 
-Details on how to configure preprocessing can be obtained below
-
-[config/](config/)
+The logs from the datasets processing will be recorded in the file `./output.log`.
 
 
 ## Citation
 Please cite the following paper if you use this repository in your reseach.
 ```
-@article{stgcnsl2019,
-  title     = {Spatial-Temporal Graph Convolutional Networks for Sign Language Recognition},
-  author    = {Cleison Correia de Amorim and David Macêdo and Cleber Zanchettin},
-  year      = {2019},
+@article{asl-datasets-2021,
+  title     = {ASL-Skeleton3D and ASL-Phono: Two Novel Datasets for the American Sign Language},
+  author    = {Cleison Correia de Amorim and and Cleber Zanchettin},
+  year      = {2021},
 }
 ```
 
 ## Contact
-For any question, feel free to contact me at
-```
-Cleison Amorim  : cca5@cin.ufpe.br
-```
+For any question, feel free to contact me at:
+
+- Cleison Amorim  : cca5@cin.ufpe.br
+

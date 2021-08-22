@@ -1,50 +1,50 @@
 # ------------------------------------------------
 # TEMPLATE CONFIGURATION
 # ------------------------------------------------
-work_dir: ../work/dataset/  # The work directory, inside which all the directories and files below will be created
-debug: true                 # Enable debug mode (small number of files will be processed only)
-mode: [2d, 3d]              # Modes for processing datasets -- 3d is the best for most of the phases and datasets
-format: [mov, vid]          # Formats to consider when downloading samples from ASLLVD
-fps_out: 3                  # FPS rate to downsample videos while processing
-phases:                     # Phases to process
+work_dir: ../work/dataset/                      # The work directory, inside which all the directories and files below will be created
+debug: false                                    # Enable debug mode (small number of files will be processed only)
+mode: [2d, 3d]                                  # Modes for processing datasets -- 3d is the best for most of the phases and datasets
+format: [mov, vid]                              # Formats to consider when downloading samples from ASLLVD
+fps_out: 3                                      # FPS rate to downsample videos while processing
+phases:                                         # Phases to process -- available: download, segment, skeleton, normalize, phonology
   download, 
   segment, 
   skeleton,
   normalize,
   phonology
 
-metadata:
-  debug_items: 2            # Number of items to process when debug mode is enabled
-  path:  ./dai-asllvd.xlsx  # Path to the metadata file (relative to 'work_dir')
+metadata:                                       # Configuration about where is the metadata file of the ASLLVD. All processing will start from this file.
+  debug_items: 3                                # Number of items to process when debug mode is enabled
+  path:  ./dai-asllvd.xlsx                      # Path to the metadata file (relative to 'work_dir')
   download_url: http://www.bu.edu/asllrp/dai-asllvd-BU_glossing_with_variations_HS_information-extended-urls-RU.xlsx  # URL to download ASLLVD metadata file, if missing
 
-download:
-  delete_on_finish: true    # Delete output after finished this phase? (this will save disk space)
-  output_dir: ./download    # Directory to write output files (relative to 'work_dir')
-  url:                      # URLs template to adopt when downloading videos for the VID and MOV formats, respectively
+download:                                       # Configuration for the "download" phase:
+  delete_on_finish: true                        # Delete output after finished this phase? (this will save disk space)
+  output_dir: ./download                        # Directory to write output files (relative to 'work_dir')
+  url:                                          # URLs template to adopt when downloading videos for the VID and MOV formats, respectively
     vid: http://csr.bu.edu/ftp/asl/asllvd/asl-data2/{session}/scene{scene}-camera{camera}.vid
     mov: http://csr.bu.edu/ftp/asl/asllvd/asl-data2/quicktime/{session}/scene{scene}-camera{camera}.mov
 
-segment:
-  delete_on_finish: true    # Delete output after finished this phase? (this will save disk space)
-  input_dir: ./download     # Directory from which read files for processing (relative to 'work_dir')
-  output_dir: ./segmented   # Directory to write output files (relative to 'work_dir')
+segment:                                        # Configuration for the "segment" phase:
+  delete_on_finish: true                        # Delete output after finished this phase? (this will save disk space)
+  input_dir: ./download                         # Directory from which read files for processing (relative to 'work_dir')
+  output_dir: ./segmented                       # Directory to write output files (relative to 'work_dir')
   vidreader_path: ./3rd_party/linux/vidReader   # Path to the 'vidreader' binary (embeded to this project)
-  fps_in: 60                # Original FPS rate for the ASLLVD videos
+  fps_in: 60                                    # Original FPS rate for the ASLLVD videos
 
-skeleton:
-  delete_on_finish: true    # Delete output after finished this phase? (this will save disk space)
-  input_dir: ./segmented    # Directory from which read files for processing (relative to 'work_dir')
-  output_dir: ./skeleton    # Directory to write output files (relative to 'work_dir')
-  openpose_path: openpose   # Path to the OpenPose binary (this might work if you running inside the Docker container)
-  models_dir: /openpose/models  # Path to the 'models' folder, inside your main OpenPose installation folder
+skeleton:                                       # Configuration for the "skeleton" phase:
+  delete_on_finish: true                        # Delete output after finished this phase? (this will save disk space)
+  input_dir: ./segmented                        # Directory from which read files for processing (relative to 'work_dir')
+  output_dir: ./skeleton                        # Directory to write output files (relative to 'work_dir')
+  openpose_path: openpose                       # Path to the OpenPose binary (this might work if you running inside the Docker container)
+  models_dir: /openpose/models                  # Path to the 'models' folder, inside your main OpenPose installation folder
 
-normalize:
-  delete_on_finish: true    # Delete output after finished this phase? (this will save disk space)  
-  input_dir: ./skeleton     # Directory from which read files for processing (relative to 'work_dir')
-  output_dir: ./normalized  # Directory to write output files (relative to 'work_dir')
+normalize:                                      # Configuration for the "normalize" phase:
+  delete_on_finish: false                       # Delete output after finished this phase? (this will save disk space)  
+  input_dir: ./skeleton                         # Directory from which read files for processing (relative to 'work_dir')
+  output_dir: ./normalized                      # Directory to write output files (relative to 'work_dir')
 
-phonology:
-  delete_on_finish: false   # Delete output after finished this phase? (this will save disk space)  
-  input_dir: ./normalized   # Directory from which read files for processing (relative to 'work_dir')
-  output_dir: ./phonology   # Directory to write output files (relative to 'work_dir')
+phonology:                                      # Configuration for the "phonology" phase:
+  delete_on_finish: false                       # Delete output after finished this phase? (this will save disk space)  
+  input_dir: ./normalized                       # Directory from which read files for processing (relative to 'work_dir')
+  output_dir: ./phonology                       # Directory to write output files (relative to 'work_dir')

@@ -10,7 +10,8 @@
             "request": "launch",
             "module": "main",
             "console": "integratedTerminal",
-            "justMyCode": false
+            "justMyCode": false,
+            "args": ["-c", "./config/debug.yaml"]
         }
     ]
 }

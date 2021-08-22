@@ -2,7 +2,7 @@
 # CONFIGURATION: ASL-SKELETON3D DATASET
 # ------------------------------------------------
 work_dir:   ../work/dataset/
-debug: True
+debug: false
 mode: [3d]
 format: [mov, vid]
 fps_out: 3
