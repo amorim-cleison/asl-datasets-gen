@@ -13,7 +13,6 @@ Learn more about the datasets:
  [CIn](http://www.cin.ufpe.br/~cca5/asl-datasets/paper)
 
 
-
 ## Download
 
 Download the processed datasets by using the links below:
