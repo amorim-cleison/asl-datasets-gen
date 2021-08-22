@@ -20,7 +20,7 @@ Learn more about the datasets:
 | [Pre-print (arXiv)](https://arxiv.org/pdf/1901.11164)
 
 
-## Download datasets
+## Download
 
 Download the processed datasets by using the links below:
 
@@ -28,7 +28,7 @@ Download the processed datasets by using the links below:
 - **ASL-Phono** -> [CIn](https://www.cin.ufpe.br/~cca5/asl-datasets/download/asl-phono)
 
 
-## Generate datasets
+## Generate
 
 If you prefer generating the datasets by yourself, this section presents the requirements, setup and procedures to execute the code. 
 
