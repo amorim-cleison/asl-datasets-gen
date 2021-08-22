@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "asl-datasets-generator"
+name = "asl-datasets-gen"
 version = "0.1.0"
 description = "This project generates datasets for the ASL."
 authors = ["Cleison Amorim <cca5@cin.ufpe.br>"]
