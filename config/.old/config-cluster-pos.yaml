@@ -1,0 +1,46 @@
+work_dir: ~/work/asllvd-skeleton/dataset
+debug: False
+mode: [2d, 3d]
+format: [mov, vid]
+fps_out: 3
+phases: 
+#  download, 
+#  segment, 
+  skeleton,
+  normalize,
+  phonology
+
+metadata:
+  path:  ~/work/asllvd-skeleton/dataset/dai-asllvd.xlsx
+  download_url: http://www.bu.edu/asllrp/dai-asllvd-BU_glossing_with_variations_HS_information-extended-urls-RU.xlsx
+
+download:
+  delete_on_finish: True
+  output_dir: ./download
+  url: 
+    vid: http://csr.bu.edu/ftp/asl/asllvd/asl-data2/{session}/scene{scene}-camera{camera}.vid
+    mov: http://csr.bu.edu/ftp/asl/asllvd/asl-data2/quicktime/{session}/scene{scene}-camera{camera}.mov
+
+segment:
+  delete_on_finish: False
+  input_dir: ./download
+  output_dir: ./segmented
+  vidreader_path: ~/repos/asllvd-vid-reader/bin/vidReader
+  fps_in: 60
+
+skeleton:
+  delete_on_finish: False
+  input_dir: ./segmented
+  output_dir: ./skeleton
+  openpose_path: openpose
+  models_dir: /openpose/models
+
+normalize:
+  delete_on_finish: False
+  input_dir: ./skeleton
+  output_dir: ./normalized
+
+phonology:
+  delete_on_finish: false
+  input_dir: ./normalized
+  output_dir: ./phonology

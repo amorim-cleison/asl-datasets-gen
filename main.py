@@ -1,29 +1,109 @@
-#!/usr/bin/env python
-import argparse
-import sys
+from commons.log import log, log_progress
+from commons.util import Argument, create_if_missing, load_args
 
-# torchlight
-from torchlight.io import import_class
+import processor as p
+
+ARGUMENTS = [
+    Argument('-w', '--work_dir', type=str,
+             required=True, help='Working directory'),
+    Argument('-d', '--debug', type=bool, help='Debug flag'),
+    Argument('-r', '--fps_out', type=int, help='Output frames per second'),
+    Argument('-m', '--mode', options=["2d", "3d"], type=list, default="2d",
+             help='Extraction mode'),
+    Argument('-f', '--format', options=["mov", "vid"], type=list, default="mov",
+             help='Formats'),
+    Argument('-ph', '--phases', type=list, help='Phases of pipeline'),
+    Argument('-sk', '--skeleton', type=dict, help='Poses configs'),
+    Argument('-sg', '--segment', type=dict, help='Split configs'),
+    Argument('-dl', '--download', type=dict, help='Download configs'),
+    Argument('-no', '--normalize', type=dict, help='Normalization configs'),
+    Argument('-pn', '--phonology', type=dict, help='Phonology features configs'),
+    Argument('-me', '--metadata', type=dict, help='Metadata configs')
+]
+
+PHASES = {
+    "download": p.Downloader,
+    "segment": p.Segmenter,
+    "skeleton": p.Skeletor,
+    "normalize": p.Normalizer,
+    "phonology": p.Phonologyzer
+}
+
+
+def run(args):
+    print_args(args)
+
+    # Create work dir:
+    workdir = args.work_dir
+    create_if_missing(workdir)
+
+    # Load metadata:
+    metadata = load_metadata(args)
+    metadata = metadata.groupby(["session", "scene"])
+
+    last_processor = None
+    total = len(metadata)
+    phases = {n: p for n, p in PHASES.items() if n in args.phases}
+
+    # Iterates per groups of session x scene to optimize storage consumption,
+    # by processing files in batch of those groups.
+    # Every .vid file requires at least 1GB of disk space, and here we dispose
+    # them as soon as we finish the process of the stage.
+    for idx, ((session, scene), rows) in enumerate(metadata):
+        print_group(idx, total, session, scene)
+
+        # Run pipeline:
+        for name, phase in phases.items():
+            processor = phase(args)
+            print_phase(name, processor)
+            processor.run((session, scene), rows)
+
+            # Delete the output of the last phase, if enabled:
+            if last_processor:
+                last_processor.delete_output_if_enabled()
+            last_processor = processor
+    log("\nDONE", 1)
+
+
+def load_metadata(args):
+    log("\nLoading metadata...")
+    processor = p.Metadator(args)
+    return processor.run()
+
+
+def print_group(idx, total, session, scene):
+    log("", 1)
+    log("=" * 60, 1)
+    log_progress(idx + 1, total,
+                 f"Session '{session}' | Scene '{scene}'".upper())
+    log("-" * 60, 1)
+
+
+def print_phase(name, processor):
+    log("", 1)
+    # log("-" * 60, 1)
+    log(f"{name.capitalize()}", 1)
+    log("-" * 60, 1)
+
+
+def print_processing():
+    log("", 1)
+    log("=" * 60, 1)
+    log("PROCESSING:")
+    log("-" * 60, 1)
+
+
+def print_args(args):
+    import pprint
+    pp = pprint.PrettyPrinter(indent=2)
+    log("", 1)
+    log("=" * 60, 1)
+    log("ARGUMENTS:")
+    log("-" * 60, 1)
+    log(pp.pformat(vars(args)))
+    log("-" * 60, 1)
+
 
 if __name__ == '__main__':
-
-    parser = argparse.ArgumentParser(description='Processor collection')
-
-    # region register processor yapf: disable
-    processors = dict()
-    processors['preprocessing'] = import_class('processor.sl.video_preprocessor.Video_Preprocessor')
-    #endregion yapf: enable
-
-    # add sub-parser
-    subparsers = parser.add_subparsers(dest='processor')
-    for k, p in processors.items():
-        subparsers.add_parser(k, parents=[p.get_parser()])
-
-    # read arguments
-    arg = parser.parse_args()
-
-    # start
-    Processor = processors[arg.processor]
-    p = Processor(sys.argv[2:])
-
-    p.start()
+    args = load_args('ASLLVD-Skeleton Creator', ARGUMENTS)
+    run(args)

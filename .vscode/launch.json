@@ -9,7 +9,9 @@
             "type": "python",
             "request": "launch",
             "module": "main",
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": ["-c", "./config/debug.yaml"]
         }
     ]
 }
