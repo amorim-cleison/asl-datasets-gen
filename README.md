@@ -12,20 +12,14 @@ Learn more about the datasets:
 - Paper: "ASL-Skeleton3D and ASL-Phono: Two NovelDatasets for the American Sign Language" ->
  [CIn](http://www.cin.ufpe.br/~cca5/asl-datasets/paper)
 
-> Previously, we introduced the dataset ASLLVD-Skeleton, which is now being replaced by the ASL-Skeleton3D. Read more about the old dataset in the links:
->
->- Paper: "Spatial-Temporal Graph Convolutional Networks for Sign Language Recognition" ->
- [CIn](http://www.cin.ufpe.br/~cca5/asl-datasets/paper)
-| [ICANN 2019](https://doi.org/10.1007/978-3-030-30493-5_59)
-| [Pre-print (arXiv)](https://arxiv.org/pdf/1901.11164)
 
 
 ## Download
 
 Download the processed datasets by using the links below:
 
-- **ASL-Skeleton3D** -> [CIn](https://www.cin.ufpe.br/~cca5/asl-datasets/download/asl-skeleton3d)
-- **ASL-Phono** -> [CIn](https://www.cin.ufpe.br/~cca5/asl-datasets/download/asl-phono)
+- **ASL-Skeleton3D** -> [CIn](https://www.cin.ufpe.br/~cca5/asl-skeleton3d/download)
+- **ASL-Phono** -> [CIn](https://www.cin.ufpe.br/~cca5/asl-phono/download)
 
 
 ## Generate
@@ -98,6 +92,21 @@ The resulting dataset will be located in the folder configured as output for the
 ### Logs
 
 The logs from the datasets processing will be recorded in the file `./output.log`.
+
+
+## Deprecated datasets
+Previously, we introduced the dataset ASLLVD-Skeleton, which is now being replaced by the ASL-Skeleton3D. Read more about the old dataset in the links:
+
+- Paper: "Spatial-Temporal Graph Convolutional Networks for Sign Language Recognition" ->
+ [CIn](http://www.cin.ufpe.br/~cca5/st-gcn-sl/paper)
+| [ICANN 2019](https://doi.org/10.1007/978-3-030-30493-5_59)
+| [Pre-print (arXiv)](https://arxiv.org/pdf/1901.11164)
+- Dataset: ASLLVD-Skeleton (*deprecated*)
+-> [CIn](https://www.cin.ufpe.br/~cca5/asllvd-skeleton)
+| [Google Drive](https://drive.google.com/open?id=1fSISVRtC6-wrRaPpjWXbK77ZchzWVFNe)
+- Dataset: ASLLVD-Skeleton-20 (*deprecated*)
+-> [CIn](https://www.cin.ufpe.br/~cca5/asllvd-skeleton-20)
+| [Google Drive](https://drive.google.com/open?id=1E6o_3n-edF3N8JQ94PxWliYTZaZDPsuJ)
 
 
 ## Citation
