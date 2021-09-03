@@ -113,7 +113,7 @@ Please cite the following paper if you use this repository in your reseach.
 ```
 @article{asl-datasets-2021,
   title     = {ASL-Skeleton3D and ASL-Phono: Two Novel Datasets for the American Sign Language},
-  author    = {Cleison Correia de Amorim and and Cleber Zanchettin},
+  author    = {Cleison Correia de Amorim and Cleber Zanchettin},
   year      = {2021},
 }
 ```
