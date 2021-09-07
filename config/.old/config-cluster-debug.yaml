@@ -1,4 +1,4 @@
-work_dir: ~/work/asllvd-skeleton/dataset
+work_dir: ~/work/asl-datasets
 debug: True
 mode: [2d, 3d]
 format: [mov, vid]
@@ -12,7 +12,7 @@ phases:
 
 metadata:
   debug_items: 2
-  path:  ~/work/asllvd-skeleton/dataset/dai-asllvd.xlsx
+  path:  ./dai-asllvd.xlsx
   download_url: http://www.bu.edu/asllrp/dai-asllvd-BU_glossing_with_variations_HS_information-extended-urls-RU.xlsx
 
 download:
