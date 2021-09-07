@@ -2,6 +2,8 @@
 
 ![Build](https://github.com/amorim-cleison/asl-datasets-gen/workflows/Build/badge.svg)
 ![Code Quality](https://github.com/amorim-cleison/asl-datasets-gen/workflows/Code%20Quality/badge.svg)
+[![DOI - ASL-Skeleton3D](https://zenodo.org/badge/DOI/10.5281/zenodo.5484110.svg)](https://doi.org/10.5281/zenodo.5484110) 
+[![DOI - ASL-Phono](https://zenodo.org/badge/DOI/10.5281/zenodo.5484145.svg)](https://doi.org/10.5281/zenodo.5484145)
 
 The **ASL-Skeleton3D** contains a representation based on mapping  into  the  three-dimensional  space  the  coordinates  of the  signers  in  the  ASLLVD  dataset. The **ASL-Phono**, in turn, introduces a novel linguistics-based representation,  which  describes  the  signs  in  the  ASLLVD  dataset in terms of a set of attributes of the American Sign Language phonology.
 
@@ -17,8 +19,13 @@ Learn more about the datasets:
 
 Download the processed datasets by using the links below:
 
-- **ASL-Skeleton3D** -> [CIn](https://www.cin.ufpe.br/~cca5/asl-skeleton3d/download)
-- **ASL-Phono** -> [CIn](https://www.cin.ufpe.br/~cca5/asl-phono/download)
+- **ASL-Skeleton3D** -> 
+[CIn](https://www.cin.ufpe.br/~cca5/asl-skeleton3d/download)
+| [DOI](https://doi.org/10.5281/zenodo.5484110)
+
+- **ASL-Phono** -> 
+[CIn](https://www.cin.ufpe.br/~cca5/asl-phono/download)
+| [DOI](https://doi.org/10.5281/zenodo.5484145)
 
 
 ## Generate
