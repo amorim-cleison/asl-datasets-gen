@@ -1,6 +1,6 @@
-work_dir: ~/work/asllvd-skeleton/dataset
+work_dir: ~/work/asl-datasets
 debug: False
-mode: [2d, 3d]
+mode: [3d]
 format: [mov, vid]
 fps_out: 3
 phases: 
@@ -11,7 +11,7 @@ phases:
   phonology
 
 metadata:
-  path:  ~/work/asllvd-skeleton/dataset/dai-asllvd.xlsx
+  path: ./dai-asllvd.xlsx
   download_url: http://www.bu.edu/asllrp/dai-asllvd-BU_glossing_with_variations_HS_information-extended-urls-RU.xlsx
 
 download:
